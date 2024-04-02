@@ -19,6 +19,6 @@ class PluginTest extends TestCase {
 		define( 'WP_ADMIN', true );
 		do_action( 'plugins_loaded' );
 
-		$this->assertTrue( class_exists( '\Plausible\Analytics\WP\Admin\SelfHosted' ) );
+		$this->assertTrue( class_exists( '\Plausible\Analytics\WP\Admin\Provisioning' ) );
 	}
 }
