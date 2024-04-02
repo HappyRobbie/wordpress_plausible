@@ -2,6 +2,7 @@
 
 /**
  * Plausible Analytics | Settings API.
+ *
  * @since      1.3.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -21,6 +22,7 @@ class Page extends API {
 
 	/**
 	 * Constructor.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return void
@@ -56,20 +58,17 @@ class Page extends API {
 							'value' => $domain,
 						],
 						[
-							'label'    => esc_html__( 'API token', 'plausible-analytics' ),
-							'slug'     => 'api_token',
-							'type'     => 'text',
-							'value'    => $settings[ 'api_token' ],
-							'disabled' => ! empty( $settings[ 'self_hosted_domain' ] ),
+							'label' => esc_html__( 'API token', 'plausible-analytics' ),
+							'slug'  => 'api_token',
+							'type'  => 'text',
+							'value' => $settings[ 'api_token' ],
 						],
 						[
 							'label'    => empty( $settings[ 'domain_name' ] ) || empty( $settings[ 'api_token' ] ) ?
 								esc_html__( 'Connect', 'plausible-analytics' ) : esc_html__( 'Connected', 'plausible-analytics' ),
 							'slug'     => 'connect_plausible_analytics',
 							'type'     => 'button',
-							'disabled' => ( empty( $settings[ 'self_hosted_domain' ] ) ) &&
-								( empty( $settings[ 'domain_name' ] ) || empty( $settings[ 'api_token' ] ) ) ||
-								( ! empty( $settings[ 'domain_name' ] ) && ! empty( $settings[ 'api_token' ] ) ),
+							'disabled' => ( empty( $settings[ 'domain_name' ] ) || empty( $settings[ 'api_token' ] ) ),
 						],
 					],
 				],
@@ -392,7 +391,7 @@ class Page extends API {
 			];
 		}
 
-		if ( empty( $settings[ 'api_token' ] ) && empty( $settings[ 'self_hosted_domain' ] ) ) {
+		if ( empty( $settings[ 'api_token' ] ) ) {
 			$this->fields[ 'general' ][ 0 ][ 'fields' ][] = [
 				'label' => '',
 				'slug'  => 'api_token_missing',
@@ -421,6 +420,7 @@ class Page extends API {
 
 	/**
 	 * Action hooks.
+	 *
 	 * @return void
 	 */
 	private function init() {
@@ -477,6 +477,7 @@ class Page extends API {
 
 	/**
 	 * Register Menu.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return void
@@ -546,6 +547,7 @@ class Page extends API {
 
 	/**
 	 * A little hack to add some classes to the core #wpcontent div.
+	 *
 	 * @return void
 	 */
 	public function add_background_color() {
@@ -556,6 +558,7 @@ class Page extends API {
 
 	/**
 	 * Statistics Page via Embed feature.
+	 *
 	 * @since  1.2.0
 	 * @access public
 	 * @return void
@@ -608,6 +611,7 @@ class Page extends API {
 		 * When this option was saved to the database, underlying code would fail, throwing a CORS related error in browsers.
 		 * Now, we explicitly check for the existence of this example "auth" key, and display a human readable error message to
 		 * those who haven't properly set it up.
+		 *
 		 * @since v1.2.5
 		 * For self-hosters the View Stats option doesn't need to be enabled, if a Shared Link is entered, we can assume they want to View Stats.
 		 * For regular users, the shared link is provisioned by the API, so it shouldn't be empty.
@@ -682,6 +686,7 @@ class Page extends API {
 
 	/**
 	 * Display connect button.
+	 *
 	 * @return void
 	 */
 	public function connect_button() {
@@ -702,6 +707,7 @@ class Page extends API {
 
 	/**
 	 * Renders the warning for the Enable Proxy option.
+	 *
 	 * @since 1.3.0
 	 * @return void
 	 */
@@ -724,12 +730,13 @@ class Page extends API {
 
 	/**
 	 * Show notice when API token notice is disabled.
+	 *
 	 * @return void
 	 */
 	public function option_disabled_by_self_hosted_domain() {
 		echo wp_kses(
 			__(
-				'This option is disabled, because the <strong>Domain Name</strong> setting is enabled under <em>Self-Hosted</em> settings.',
+				'This option is disabled, because a Self-Hosted <strong>Domain Name</strong> is entered.',
 				'plausible-analytics'
 			),
 			'post'
@@ -738,6 +745,7 @@ class Page extends API {
 
 	/**
 	 * Renders the analytics dashboard link if the option is enabled.
+	 *
 	 * @since 2.0.0
 	 * @return void
 	 */
@@ -758,6 +766,7 @@ class Page extends API {
 
 	/**
 	 * Renders the Self-hosted warning if the Proxy is enabled.
+	 *
 	 * @since 1.3.3
 	 * @return void
 	 */

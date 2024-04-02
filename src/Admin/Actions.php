@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Admin Actions.
+ *
  * @since      1.0.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -15,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 class Actions {
 	/**
 	 * Constructor.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return void
@@ -26,6 +28,7 @@ class Actions {
 
 	/**
 	 * Register Assets.
+	 *
 	 * @since  1.0.0
 	 * @since  1.3.0 Don't load CSS admin-wide. JS needs to load admin-wide, since we're throwing admin-wide, dismissable notices.
 	 * @access public
@@ -53,6 +56,7 @@ class Actions {
 
 	/**
 	 * Redirect to Configuration Wizard on first boot.
+	 *
 	 * @return void
 	 */
 	public function maybe_redirect_to_wizard() {
@@ -67,9 +71,8 @@ class Actions {
 		}
 
 		$wizard_done = get_option( 'plausible_analytics_wizard_done', false );
-		$self_hosted = Helpers::get_settings()[ 'self_hosted_domain' ];
 
-		if ( ! $wizard_done && ! $self_hosted ) {
+		if ( ! $wizard_done ) {
 			$url = admin_url( 'options-general.php?page=plausible_analytics#welcome_slide' );
 
 			wp_redirect( $url );
