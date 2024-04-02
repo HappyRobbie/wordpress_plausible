@@ -2,7 +2,7 @@
 
 # [Plausible Analytics](https://plausible.io "Plausible Analytics") #
 
-![WordPress version](https://img.shields.io/wordpress/plugin/v/plausible-analytics.svg) ![WordPress Rating](https://img.shields.io/wordpress/plugin/r/plausible-analytics.svg) ![WordPress Downloads](https://img.shields.io/wordpress/plugin/dt/plausible-analytics.svg)
+[![Github CI](https://github.com/plausible/wordpress/actions/workflows/push.yml/badge.svg)](https://github.com/plausible/wordpress/actions/workflows/push.yml) ![WordPress version](https://img.shields.io/wordpress/plugin/v/plausible-analytics.svg) ![WordPress Rating](https://img.shields.io/wordpress/plugin/r/plausible-analytics.svg) ![WordPress Downloads](https://img.shields.io/wordpress/plugin/dt/plausible-analytics.svg)
 
 Welcome to the Plausible Analytics WordPress Plugin GitHub repository. This is the code source and the center of active development. Here you can
 browse the source, look at open issues, and contribute to the project.
