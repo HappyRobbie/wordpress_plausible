@@ -2,6 +2,7 @@
 
 /**
  * Plausible Analytics | Settings API.
+ *
  * @since      1.3.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -16,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class API {
 	/**
 	 * Admin Setting Fields.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @var array
@@ -24,6 +26,7 @@ class API {
 
 	/**
 	 * Slide IDs and Titles
+	 *
 	 * @since v2.0.0
 	 * @var string[] $slides
 	 */
@@ -31,6 +34,7 @@ class API {
 
 	/**
 	 * Slide IDs and Descriptions
+	 *
 	 * @since v2.0.0
 	 * @var array $slides_description
 	 */
@@ -38,6 +42,7 @@ class API {
 
 	/**
 	 * Render Fields.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return void
@@ -46,7 +51,7 @@ class API {
 		wp_nonce_field( 'plausible_analytics_toggle_option' );
 
 		$settings        = Helpers::get_settings();
-		$followed_wizard = get_option( 'plausible_analytics_wizard_done' ) || ! empty( $settings[ 'self_hosted_domain' ] );
+		$followed_wizard = get_option( 'plausible_analytics_wizard_done' );
 
 		/**
 		 * On-boarding wizard.
@@ -195,6 +200,7 @@ class API {
 
 	/**
 	 * Renders the configuration wizard on the Settings page.
+	 *
 	 * @return void
 	 */
 	private function show_wizard() {
@@ -361,6 +367,7 @@ class API {
 
 	/**
 	 * Renders the notice "bubble", which is further handled by JS.
+	 *
 	 * @return void
 	 */
 	private function render_notices_field() {
@@ -442,6 +449,7 @@ class API {
 
 	/**
 	 * Render Header Navigation.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return void
@@ -486,6 +494,7 @@ class API {
 
 	/**
 	 * Render Quick Actions
+	 *
 	 * @since  1.3.0
 	 * @return string
 	 */
@@ -508,6 +517,7 @@ class API {
 
 	/**
 	 * Get Quick Actions.
+	 *
 	 * @since  1.3.0
 	 * @return array
 	 */
@@ -539,6 +549,7 @@ class API {
 
 	/**
 	 * Render Group Field.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return string
@@ -585,6 +596,7 @@ class API {
 
 	/**
 	 * Render Text Field.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return string
@@ -640,6 +652,7 @@ class API {
 
 	/**
 	 * Render Checkbox Field.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return string
@@ -684,6 +697,7 @@ class API {
 
 	/**
 	 * Render textarea field.
+	 *
 	 * @since  1.2.5
 	 * @access public
 	 *
@@ -714,6 +728,7 @@ class API {
 
 	/**
 	 * Render just the label, and allow insertion of anything using the hook beside it.
+	 *
 	 * @since 1.3.0
 	 *
 	 * @param array $field

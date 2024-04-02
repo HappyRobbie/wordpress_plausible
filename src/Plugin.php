@@ -6,11 +6,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Loads and registers plugin functionality through WordPress hooks.
+ *
  * @since 1.0.0
  */
 final class Plugin {
 	/**
 	 * Registers functionality with WordPress hooks.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return void
@@ -25,6 +27,7 @@ final class Plugin {
 
 	/**
 	 * Registers the individual services of the plugin.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return void
@@ -37,7 +40,6 @@ final class Plugin {
 			new Admin\Actions();
 			new Admin\Module();
 			new Admin\Provisioning();
-			new Admin\SelfHosted();
 		}
 
 		new Actions();
@@ -50,6 +52,7 @@ final class Plugin {
 
 	/**
 	 * Loads the plugin's translated strings.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return void

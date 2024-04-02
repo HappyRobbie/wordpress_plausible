@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Module.
+ *
  * @since      1.3.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -23,6 +24,7 @@ class Ajax {
 
 	/**
 	 * Action and filter hooks.
+	 *
 	 * @return void
 	 */
 	private function init() {
@@ -34,6 +36,7 @@ class Ajax {
 
 	/**
 	 * Mark the wizard as finished, so it won't appear again.
+	 *
 	 * @return void
 	 */
 	public function quit_wizard() {
@@ -64,6 +67,7 @@ class Ajax {
 	/**
 	 * Clean variables using `sanitize_text_field`.
 	 * Arrays are cleaned recursively. Non-scalar values are ignored.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 *
@@ -96,6 +100,7 @@ class Ajax {
 
 	/**
 	 * Removes the plausible_analytics_wizard_done row from the wp_options table, effectively displaying the wizard on next page load.
+	 *
 	 * @return void
 	 */
 	public function show_wizard() {
@@ -112,6 +117,7 @@ class Ajax {
 
 	/**
 	 * Save Admin Settings
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -157,6 +163,7 @@ class Ajax {
 
 	/**
 	 * Save Options
+	 *
 	 * @return void
 	 * @throws ApiException
 	 */
@@ -180,7 +187,7 @@ class Ajax {
 			$settings[ $option->name ] = trim( $option->value );
 
 			// Validate API token, if this is the API token field.
-			if ( $option->name === 'api_token' && empty( $settings[ 'self_hosted_domain' ] ) ) {
+			if ( $option->name === 'api_token' ) {
 				$this->validate_api_token( $option->value );
 			}
 		}
