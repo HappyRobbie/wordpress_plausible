@@ -472,7 +472,7 @@ class API {
 					'class' => '' === $current_tab ? 'font-bold' : '',
 				],
 				'self-hosted' => [
-					'name'  => esc_html__( 'Self-Hosted', 'plausible-analytics' ),
+					'name'  => esc_html__( 'Community Edition', 'plausible-analytics' ),
 					'url'   => admin_url( 'options-general.php?page=plausible_analytics&tab=self-hosted' ),
 					'class' => 'self-hosted' === $current_tab ? 'font-bold' : '',
 				],

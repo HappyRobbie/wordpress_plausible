@@ -273,20 +273,20 @@ class Page extends API {
 			],
 			'self-hosted' => [
 				[
-					'label'  => esc_html__( 'Self-hosted Plausible Analytics', 'plausible-analytics' ),
+					'label'  => esc_html__( 'Plausible Community Edition', 'plausible-analytics' ),
 					'slug'   => 'is_self_hosted',
 					'type'   => 'group',
 					'desc'   => sprintf(
 						'%1$s <a href="%2$s" target="_blank">%3$s</a>',
 						wp_kses(
 							__(
-								'If you\'re self-hosting Plausible on your own infrastructure, enter the domain name where you installed it to enable the integration with your self-hosted instance. Multisites can use the <code>PLAUSIBLE_SELF_HOSTED_DOMAIN</code> constant to define the URL for all subsites at once.',
+								'If you\'re using Plausible Community Edition on your own infrastructure, enter the domain name where you installed it to enable the integration with your self-hosted instance. Multisites can use the <code>PLAUSIBLE_SELF_HOSTED_DOMAIN</code> constant to define the URL for all subsites at once.',
 								'plausible-analytics'
 							),
 							'post'
 						),
 						esc_url( 'https://plausible.io/self-hosted-web-analytics/' ),
-						esc_html__( 'Learn more about Plausible Self-Hosted.', 'plausible-analytics' )
+						esc_html__( 'Learn more about Plausible Community Edition.', 'plausible-analytics' )
 					),
 					'toggle' => '',
 					'fields' => [
