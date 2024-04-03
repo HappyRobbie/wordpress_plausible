@@ -352,7 +352,7 @@ class Page extends API {
 			$option_disabled_hook = [
 				[
 					'label' => '',
-					'slug'  => 'option_disabled_by_self_hosted_domain',
+					'slug'  => 'option_not_available_in_ce',
 					'type'  => 'hook',
 				],
 			];
@@ -437,7 +437,7 @@ class Page extends API {
 		 */
 		add_action( 'plausible_analytics_settings_api_connect_button', [ $this, 'connect_button' ] );
 		add_action( 'plausible_analytics_settings_api_token_missing', [ $this, 'api_token_missing' ] );
-		add_action( 'plausible_analytics_settings_option_disabled_by_self_hosted_domain', [ $this, 'option_disabled_by_self_hosted_domain' ] );
+		add_action( 'plausible_analytics_settings_option_not_available_in_ce', [ $this, 'option_na_in_ce' ] );
 		add_action( 'plausible_analytics_settings_proxy_warning', [ $this, 'proxy_warning' ] );
 		add_action( 'plausible_analytics_settings_enable_analytics_dashboard_notice', [ $this, 'enable_analytics_dashboard_notice' ] );
 		add_action( 'plausible_analytics_settings_option_disabled_by_missing_api_token', [ $this, 'option_disabled_by_missing_api_token' ] );
@@ -715,7 +715,7 @@ class Page extends API {
 	 */
 	public function proxy_warning() {
 		if ( ! empty( Helpers::get_settings()[ 'self_hosted_domain' ] ) ) {
-			$this->option_disabled_by_self_hosted_domain();
+			$this->option_na_in_ce();
 		} else {
 			echo sprintf(
 				wp_kses(
@@ -735,10 +735,10 @@ class Page extends API {
 	 *
 	 * @return void
 	 */
-	public function option_disabled_by_self_hosted_domain() {
+	public function option_na_in_ce() {
 		echo wp_kses(
 			__(
-				'This option is disabled, because a Self-Hosted <strong>Domain Name</strong> is entered.',
+				'This feature is not available in Plausible Community Edition.',
 				'plausible-analytics'
 			),
 			'post'
