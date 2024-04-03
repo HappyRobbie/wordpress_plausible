@@ -345,6 +345,9 @@ class Page extends API {
 			],
 		];
 
+		/**
+		 * If self-hosted domain setting has a value, add option disabled notice to Ecommerce revenue toggle.
+		 */
 		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
 			$option_disabled_hook = [
 				[
@@ -354,12 +357,6 @@ class Page extends API {
 				],
 			];
 
-			$fields = $this->fields[ 'general' ][ 0 ][ 'fields' ];
-
-			array_splice( $fields, 2, 0, $option_disabled_hook );
-
-			$this->fields[ 'general' ][ 0 ][ 'fields' ] = $fields;
-
 			$fields = $this->fields[ 'general' ][ 1 ][ 'fields' ];
 
 			array_splice( $fields, 5, 0, $option_disabled_hook );
@@ -367,6 +364,11 @@ class Page extends API {
 			$this->fields[ 'general' ][ 1 ][ 'fields' ] = $fields;
 		}
 
+		/**
+		 * If proxy is enabled, or self-hosted domain has a value, display warning box.
+		 *
+		 * @see self::proxy_warning()
+		 */
 		if ( Helpers::proxy_enabled() || ! empty( $settings[ 'self_hosted_domain' ] ) ) {
 			$this->fields[ 'general' ][ 2 ][ 'fields' ][] = [
 				'label' => '',
