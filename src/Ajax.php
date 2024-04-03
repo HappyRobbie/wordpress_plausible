@@ -35,7 +35,7 @@ class Ajax {
 	}
 
 	/**
-	 * Mark the wizard as finished, so it won't appear again.
+	 * Mark the wizard as finished, so it won't appear again, and optionally redirect.
 	 *
 	 * @return void
 	 */
@@ -52,7 +52,9 @@ class Ajax {
 			$url = admin_url( 'options-general.php?page=plausible_analytics' );
 
 			// Redirect param points to a specific option.
-			if ( $request_data[ 'redirect' ] !== '1' ) {
+			if ( strpos( $request_data[ 'redirect' ], 'self-hosted' ) !== false ) {
+				$url .= '&tab=' . $request_data[ 'redirect' ];
+			} elseif ( $request_data[ 'redirect' ] !== '1' ) {
 				$url .= '#' . $request_data[ 'redirect' ];
 			}
 
