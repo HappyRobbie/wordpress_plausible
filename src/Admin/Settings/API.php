@@ -51,7 +51,7 @@ class API {
 		wp_nonce_field( 'plausible_analytics_toggle_option' );
 
 		$settings        = Helpers::get_settings();
-		$followed_wizard = get_option( 'plausible_analytics_wizard_done' );
+		$followed_wizard = get_option( 'plausible_analytics_wizard_done' ) || ! empty( $settings[ 'self_hosted_domain' ] );
 
 		/**
 		 * On-boarding wizard.
@@ -504,6 +504,9 @@ class API {
 		?>
 		<?php if ( ! empty( $quick_actions ) && count( $quick_actions ) > 0 ) : ?>
 			<?php foreach ( $quick_actions as $quick_action ) : ?>
+				<?php if ( ! empty( $quick_action[ 'disabled' ] ) && $quick_action[ 'disabled' ] === true ) : ?>
+					<?php continue; ?>
+				<?php endif; ?>
 				<a id="<?php echo $quick_action[ 'id' ]; ?>" class="no-underline text-sm leading-6 text-gray-900"
 				   target="<?php echo $quick_action[ 'target' ]; ?>" href="<?php echo $quick_action[ 'url' ]; ?>"
 				   title="<?php echo $quick_action[ 'label' ]; ?>" data-nonce="<?php echo $quick_action[ 'nonce' ]; ?>">
@@ -522,13 +525,16 @@ class API {
 	 * @return array
 	 */
 	private function get_quick_actions() {
+		$settings = Helpers::get_settings();
+
 		return [
 			'getting-started' => [
-				'label'  => esc_html__( 'Getting Started Guide', 'plausible-analytics' ),
-				'url'    => '#',
-				'id'     => 'show_wizard',
-				'target' => '_self',
-				'nonce'  => wp_create_nonce( 'plausible_analytics_show_wizard' ),
+				'label'    => esc_html__( 'Getting Started Guide', 'plausible-analytics' ),
+				'url'      => '#',
+				'id'       => 'show_wizard',
+				'target'   => '_self',
+				'nonce'    => wp_create_nonce( 'plausible_analytics_show_wizard' ),
+				'disabled' => ! empty( $settings[ 'self_hosted_domain' ] ),
 			],
 			'view-docs'       => [
 				'label'  => esc_html__( 'Documentation', 'plausible-analytics' ),
