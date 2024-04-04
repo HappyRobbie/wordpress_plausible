@@ -377,23 +377,17 @@ class API {
 	 * @return void
 	 */
 	private function render_notices_field() {
-		/**
-		 * If this var contains a value, the notice box will be shown on next pageloads until the transient is expired.
-		 */
-		$show_error  = get_transient( 'plausible_analytics_error' );
-		$show_notice = get_transient( 'plausible_analytics_notice' );
 		?>
 		<!-- notices -->
 		<div
 			class="z-50 fixed inset-0 top-5 flex items-end justify-center px-6 py-8 pointer-events-none sm:p-6 sm:items-start sm:justify-end">
 			<div id="plausible-analytics-notice"
-				 class="<?php echo $show_error || $show_notice ? '' :
-					 'hidden'; ?> max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto transition-opacity ease-in-out duration-200 <?php echo $show_error ||
-				 $show_notice ? 'opacity-100' : 'opacity-0'; ?>">
+				 class="hidden max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto transition-opacity ease-in-out duration-200 opacity-0">
 				<div class="rounded-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
 					<div class="p-4">
 						<div class="flex items-start">
-							<div id="icon-success" class="flex-shrink-0 <?php echo $show_error || $show_notice ? 'hidden' : ''; ?>">
+							<!-- Success -->
+							<div id="icon-success" class="flex-shrink-0 hidden">
 								<svg class="h-8 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none"
 									 viewBox="0 0 24 24"
 									 stroke="currentColor">
@@ -401,26 +395,25 @@ class API {
 										  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 								</svg>
 							</div>
-							<div id="icon-error" class="flex-shrink-0 <?php echo $show_error ? '' : 'hidden'; ?>">
+							<!-- Error -->
+							<div id="icon-error" class="flex-shrink-0 hidden">
 								<svg class="h-8 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
 									 stroke-width="2" stroke="currentColor">
 									<path stroke-linecap="round" stroke-linejoin="round"
 										  d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
 								</svg>
 							</div>
-							<div id="icon-notice" class="flex-shrink-0 <?php echo $show_notice ? '' : 'hidden'; ?>">
+							<!-- Warning -->
+							<div id="icon-notice" class="flex-shrink-0 hidden">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
 									 class="w-6 h-8 text-yellow-400">
 									<path stroke-linecap="round" stroke-linejoin="round"
 										  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
 								</svg>
-
 							</div>
 							<div class="ml-3 w-0 flex-1 pt-0.5">
-								<! -- message -->
-								<p id="plausible-analytics-notice-text" class="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-200">
-									<?php echo $show_error ?: $show_notice ?: ''; ?>
-								</p>
+								<!-- message -->
+								<p id="plausible-analytics-notice-text" class="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-200"></p>
 							</div>
 						</div>
 					</div>

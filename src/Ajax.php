@@ -10,7 +10,7 @@
 namespace Plausible\Analytics\WP;
 
 use Plausible\Analytics\WP\Admin\Messages;
-use Plausible\Analytics\WP\Admin\Settings\API;
+use Plausible\Analytics\WP\Admin\Settings\Hooks;
 use Plausible\Analytics\WP\Admin\Settings\Page;
 use Plausible\Analytics\WP\Client\ApiException;
 
@@ -30,10 +30,41 @@ class Ajax {
 	 * @return void
 	 */
 	private function init() {
+		add_action( 'wp_ajax_plausible_analytics_messages', [ $this, 'fetch_messages' ] );
 		add_action( 'wp_ajax_plausible_analytics_quit_wizard', [ $this, 'quit_wizard' ] );
 		add_action( 'wp_ajax_plausible_analytics_show_wizard', [ $this, 'show_wizard' ] );
 		add_action( 'wp_ajax_plausible_analytics_toggle_option', [ $this, 'toggle_option' ] );
 		add_action( 'wp_ajax_plausible_analytics_save_options', [ $this, 'save_options' ] );
+	}
+
+	/**
+	 * Returns an array of messages fetched from transients for display by JS.
+	 */
+	public function fetch_messages() {
+		$notice             = get_transient( Messages::NOTICE_TRANSIENT );
+		$error              = get_transient( Messages::ERROR_TRANSIENT );
+		$success            = get_transient( Messages::SUCCESS_TRANSIENT );
+		$additional         = get_transient( Messages::ADDITIONAL_TRANSIENT ) ?: [];
+		$additional_message = [];
+
+		if ( ! empty( $additional ) ) {
+			$additional_message = [
+				'id'      => array_key_first( $additional ),
+				'message' => $additional[ array_key_first( $additional ) ],
+			];
+		}
+
+		$messages = apply_filters(
+			'plausible_analytics_messages',
+			[
+				'notice'     => $notice,
+				'error'      => $error,
+				'success'    => $success,
+				'additional' => $additional_message,
+			]
+		);
+
+		wp_send_json_success( $messages, 200 );
 	}
 
 	/**
@@ -45,7 +76,9 @@ class Ajax {
 		$request_data = $this->clean( $_REQUEST );
 
 		if ( ! current_user_can( 'manage_options' ) || wp_verify_nonce( $request_data[ '_nonce' ], 'plausible_analytics_quit_wizard' ) < 1 ) {
-			wp_send_json_error( __( 'Not allowed.', 'plausible-analytics' ), 403 );
+			Messages::set_error( __( 'Not allowed', 'plausible-analytics' ) );
+
+			wp_send_json_error( null, 403 );
 		}
 
 		update_option( 'plausible_analytics_wizard_done', true );
@@ -122,7 +155,9 @@ class Ajax {
 		$request_data = $this->clean( $_REQUEST );
 
 		if ( ! current_user_can( 'manage_options' ) || wp_verify_nonce( $request_data[ '_nonce' ], 'plausible_analytics_show_wizard' ) < 1 ) {
-			wp_send_json_error( __( 'Not allowed.', 'plausible-analytics' ), 403 );
+			Messages::set_error( __( 'Not allowed.', 'plausible-analytics' ) );
+
+			wp_send_json_error( null, 403 );
 		}
 
 		delete_option( 'plausible_analytics_wizard_done' );
@@ -177,16 +212,41 @@ class Ajax {
 
 		$option_label  = $post_data[ 'option_label' ];
 		$toggle_status = $post_data[ 'toggle_status' ] === 'on' ? __( 'enabled', 'plausible-analytics' ) : __( 'disabled', 'plausible-analytics' );
-		$message       = apply_filters(
-			'plausible_analytics_toggle_option_message',
-			[
-				'message' => sprintf( '%s %s.', $option_label, $toggle_status ),
-			],
-			$post_data[ 'option_name' ],
-			$post_data[ 'toggle_status' ]
-		);
 
-		wp_send_json_success( $message, 200 );
+		Messages::set_success( sprintf( '%s %s.', $option_label, $toggle_status ) );
+
+		$additional = $this->maybe_render_additional_message( $post_data[ 'option_name' ], $post_data[ 'toggle_status' ] );
+
+		Messages::set_additional( $additional, $post_data[ 'option_name' ] );
+
+		wp_send_json_success( null, 200 );
+	}
+
+	/**
+	 * Adds the 'additional' array element to $message if applicable.
+	 *
+	 * @param $option_name
+	 * @param $toggle_status
+	 *
+	 * @return string
+	 */
+	private function maybe_render_additional_message( $option_name, $toggle_status ) {
+		if ( ! $toggle_status ) {
+			return '';
+		}
+
+		$additional_message_html = '';
+		$hooks                   = new Hooks();
+
+		if ( $option_name === 'proxy_enabled' ) {
+			$additional_message_html = $hooks->render_hook_field( Page::PROXY_WARNING_HOOK );
+		}
+
+		if ( $option_name === 'enable_analytics_dashboard' ) {
+			$additional_message_html = $hooks->render_hook_field( Page::ENABLE_ANALYTICS_DASH_NOTICE );
+		}
+
+		return $additional_message_html;
 	}
 
 	/**
@@ -201,13 +261,17 @@ class Ajax {
 		$settings  = Helpers::get_settings();
 
 		if ( ! current_user_can( 'manage_options' ) || wp_verify_nonce( $post_data[ '_nonce' ], 'plausible_analytics_toggle_option' ) < 1 ) {
-			wp_send_json_error( __( 'Forbidden', 'plausible-analytics' ), 403 );
+			Messages::set_error( __( 'Not allowed.', 'plausible-analytics' ) );
+
+			wp_send_json_error( null, 403 );
 		}
 
 		$options = json_decode( $post_data[ 'options' ] );
 
 		if ( empty( $options ) ) {
-			wp_send_json_error( __( 'No options found to save.', 'plausible-analytics' ), 400 );
+			Messages::set_error( __( 'No options found to save.', 'plausible-analytics' ) );
+
+			wp_send_json_error( null, 400 );
 		}
 
 		foreach ( $options as $option ) {
@@ -222,7 +286,9 @@ class Ajax {
 
 		update_option( 'plausible_analytics_settings', $settings );
 
-		wp_send_json_success( __( 'Settings saved.', 'plausible-analytics' ), 200 );
+		Messages::set_success( __( 'Settings saved.', 'plausible-analytics' ) );
+
+		wp_send_json_success( null, 200 );
 	}
 
 	/**
@@ -238,16 +304,13 @@ class Ajax {
 
 		if ( ! $client->validate_api_token() ) {
 			Messages::set_error(
-				sprintf(
-					__(
-						'Oops! The API token you used is invalid. Please <a class="plausible-create-api-token hover:cursor-pointer underline">click here</a> to generate a new token.',
-						'plausible-analytics'
-					),
-					''
+				__(
+					'Oops! The API token you used is invalid. Please <a class="plausible-create-api-token hover:cursor-pointer underline">click here</a> to generate a new token.',
+					'plausible-analytics'
 				)
 			);
 
-			wp_send_json_error( __( 'Invalid API token.', 'plausible-analytics' ) );
+			wp_send_json_error( null, 400 );
 		}
 	}
 }

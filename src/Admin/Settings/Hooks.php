@@ -29,8 +29,6 @@ class Hooks extends API {
 	 * @return void
 	 */
 	private function init_hooks() {
-		add_action( 'plausible_analytics_toggle_option_message', [ $this, 'maybe_modify_option_message' ], 9, 3 );
-		add_action( 'plausible_analytics_toggle_option_message', [ $this, 'maybe_render_additional_message' ], 10, 3 );
 		add_action( 'plausible_analytics_settings_api_connect_button', [ $this, 'connect_button' ] );
 		add_action( 'plausible_analytics_settings_api_token_missing', [ $this, 'missing_api_token_warning' ] );
 		add_action( 'plausible_analytics_settings_option_not_available_in_ce', [ $this, 'option_na_in_ce' ] );
@@ -38,59 +36,6 @@ class Hooks extends API {
 		add_action( 'plausible_analytics_settings_enable_analytics_dashboard_notice', [ $this, 'enable_analytics_dashboard_notice' ] );
 		add_action( 'plausible_analytics_settings_option_disabled_by_missing_api_token', [ $this, 'option_disabled_by_missing_api_token' ] );
 		add_action( 'plausible_analytics_settings_option_disabled_by_proxy', [ $this, 'option_disabled_by_proxy' ] );
-	}
-
-	/**
-	 * We modify the response message here, because otherwise the response to enabling the Proxy option would be "Enable proxy enabled." Sounds
-	 * weird, doesn't it?
-	 *
-	 * @param $response
-	 * @param $option_name
-	 * @param $toggle_status
-	 *
-	 * @return mixed
-	 */
-	public function maybe_modify_option_message( $response, $option_name, $toggle_status ) {
-		if ( $option_name === 'proxy_enabled' ) {
-			$response[ 'message' ] = __( 'Proxy enabled.', 'plausible-analytics' );
-
-			if ( ! $toggle_status ) {
-				$response[ 'message' ] = __( 'Proxy disabled.', 'plausible-analytics' );
-			}
-		}
-
-		return $response;
-	}
-
-	/**
-	 * Adds the 'additional' array element to $message if applicable.
-	 *
-	 * @param $response
-	 * @param $option_name
-	 * @param $toggle_status
-	 *
-	 * @return array
-	 */
-	public function maybe_render_additional_message( $response, $option_name, $toggle_status ) {
-		if ( ! $toggle_status ) {
-			return $response;
-		}
-
-		$additional_message_html = '';
-
-		if ( $option_name === 'proxy_enabled' ) {
-			$additional_message_html = $this->render_hook_field( Page::PROXY_WARNING_HOOK );
-		}
-
-		if ( $option_name === 'enable_analytics_dashboard' ) {
-			$additional_message_html = $this->render_hook_field( Page::ENABLE_ANALYTICS_DASH_NOTICE );
-		}
-
-		if ( ! $additional_message_html ) {
-			return $response;
-		}
-
-		return array_merge( $response, [ 'additional' => $additional_message_html ] );
 	}
 
 	/**
