@@ -72,15 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
 					this.stepElems[i].addEventListener('click', this.saveOptionOnNext);
 				}
 			}
+
+			/**
+			 * Run once on pageload.
+			 */
+			this.showMessages();
 		},
 
 		/**
 		 * Toggle Option and store in DB.
 		 *
 		 * @param e
-		 * @param showNotice
 		 */
-		toggleOption: function (e, showNotice = true) {
+		toggleOption: function (e) {
 			/**
 			 * Make sure event target is a toggle.
 			 */
@@ -89,8 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			const button = e.target.closest('button');
-			let toggle = '';
-			let toggleStatus = '';
+			let toggle;
 
 			// The button element is clicked.
 			if (e.target.type === 'submit') {
@@ -99,6 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				// The span element is clicked.
 				toggle = e.target.closest('span');
 			}
+
+			let toggleStatus;
 
 			if (button.classList.contains('bg-indigo-600')) {
 				// Toggle: off
@@ -121,23 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			form.append('is_list', button.dataset.list);
 			form.append('_nonce', plausible.nonce);
 
-			let reload = false;
-
-			/**
-			 * When either of these options are enabled, we need the page to reload, to display notices/warnings.
-			 */
-			if (button.name === 'proxy_enabled' || button.name === 'enable_analytics_dashboard') {
-				reload = true;
-				showNotice = false;
-			}
-
-			let result = plausible.ajax(form, null, showNotice, reload);
-
-			result.then(function (success) {
-				if (success === false) {
-					plausible.toggleOption(e, false);
-				}
-			});
+			plausible.ajax(form);
 		},
 
 		/**
@@ -163,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			button.children[0].classList.remove('hidden');
 			button.setAttribute('disabled', 'disabled');
 
-			plausible.ajax(form, button, null, true);
+			plausible.ajax(form, button);
 		},
 
 		/**
@@ -188,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				data.append('options', JSON.stringify(options));
 				data.append('_nonce', plausible.nonce);
 
-				plausible.ajax(data, null, false, true);
+				plausible.ajax(data);
 			}
 		},
 
@@ -256,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			data.append('action', 'plausible_analytics_show_wizard');
 			data.append('_nonce', e.target.dataset.nonce);
 
-			plausible.ajax(data, null, false, true);
+			plausible.ajax(data);
 		},
 
 		/**
@@ -324,16 +313,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		},
 
 		/**
-		 * Do AJAX request and (optionally) show a notice or (optionally) reload the page.
+		 * Do AJAX request.
 		 *
 		 * @param data
 		 * @param button
-		 * @param showNotice
-		 * @param reload
+		 * @param showMessages
 		 *
 		 * @return object
 		 */
-		ajax: function (data, button = null, showNotice = true, reload = false) {
+		ajax: function (data, button = null, showMessages = true) {
 			return fetch(
 				ajaxurl,
 				{
@@ -352,23 +340,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				return false;
 			}).then(response => {
-				if (showNotice === true) {
-					if (response.success === true) {
-						plausible.notice(response.data);
-					} else {
-						plausible.notice(response.data, true);
-					}
+				if (showMessages === true) {
+					plausible.showMessages();
 				}
 
 				let event = new CustomEvent('plausibleAjaxDone', {detail: response});
 
 				document.dispatchEvent(event);
 
-				if (reload === true) {
-					window.location.reload();
+				return response.data;
+			});
+		},
+
+		/**
+		 * Show messages on screen.
+		 */
+		showMessages: function () {
+			let messages = plausible.fetchMessages();
+
+			messages.then(function (messages) {
+				if (messages.error !== false) {
+					plausible.showMessage(messages.error, 'error');
+				} else if (messages.notice !== false) {
+					plausible.showMessage(messages.notice, 'notice');
+				} else if (messages.success !== false) {
+					plausible.showMessage(messages.success, 'success');
 				}
 
-				return response.success;
+				if (messages.additional.length === 0) {
+					return;
+				}
+
+				if (messages.additional.id !== undefined && messages.additional.message) {
+					plausible.showAdditionalMessage(messages.additional.message, messages.additional.id);
+				} else if (messages.additional.id !== undefined && messages.additional.message === '') {
+					plausible.removeAdditionalMessage(messages.additional.id);
+				}
+			});
+		},
+
+		/**
+		 * Fetch the messages for display.
+		 */
+		fetchMessages: function () {
+			let data = new FormData();
+			data.append('action', 'plausible_analytics_messages');
+
+			let result = plausible.ajax(data, null, false);
+
+			return result.then(function (response) {
+				return response;
 			});
 		},
 
@@ -376,15 +397,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		 * Displays a notice or error message.
 		 *
 		 * @param message
-		 * @param isError
+		 * @param type error|warning|success Defaults to success.
 		 */
-		notice: function (message, isError = false) {
-			if (isError === true) {
+		showMessage: function (message, type = 'success') {
+			if (type === 'error') {
 				document.getElementById('icon-error').classList.remove('hidden');
-				document.getElementById('icon-success').classList += ' hidden';
+				document.getElementById('icon-success').classList.add('hidden');
+				document.getElementById('icon-notice').classList.add('hidden');
+			} else if (type === 'notice') {
+				document.getElementById('icon-notice').classList.remove('hidden');
+				document.getElementById('icon-error').classList.add('hidden');
+				document.getElementById('icon-success').classList.add('hidden');
 			} else {
 				document.getElementById('icon-success').classList.remove('hidden');
-				document.getElementById('icon-error').classList += ' hidden';
+				document.getElementById('icon-error').classList.add('hidden');
+				document.getElementById('icon-notice').classList.add('hidden');
 			}
 
 			let notice = document.getElementById('plausible-analytics-notice');
@@ -397,13 +424,50 @@ document.addEventListener('DOMContentLoaded', () => {
 				notice.classList.replace('opacity-0', 'opacity-100');
 			}, 200)
 
-			if (isError === false) {
+			if (type !== 'error') {
 				setTimeout(function () {
 					notice.classList.replace('opacity-100', 'opacity-0');
 					setTimeout(function () {
 						notice.classList += ' hidden';
 					}, 200)
 				}, 2000);
+			}
+		},
+		/**
+		 * Renders a HTML box containing additional information about the enabled option.
+		 *
+		 * @param html
+		 * @param target
+		 */
+		showAdditionalMessage: function (html, target) {
+			let targetElem = document.querySelector(`[name='${target}']`);
+			let container = targetElem.closest('.plausible-analytics-group');
+
+			container.innerHTML += html;
+		},
+
+		/**
+		 * Removes the additional information box when the option is disabled.
+		 *
+		 * @param target
+		 */
+		removeAdditionalMessage: function (target) {
+			let targetElem = document.querySelector(`[name="${target}"]`);
+			let container = targetElem.closest('.plausible-analytics-group');
+			let additionalMessage;
+
+			if (container.children.length > 0) {
+				for (let i = 0; i < container.children.length; i++) {
+					if (container.children[i].classList.contains('plausible-analytics-hook')) {
+						additionalMessage = container.children[i];
+
+						break;
+					}
+				}
+			}
+
+			if (additionalMessage !== undefined) {
+				container.removeChild(additionalMessage);
 			}
 		}
 	}

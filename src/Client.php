@@ -3,6 +3,7 @@
 namespace Plausible\Analytics\WP;
 
 use Exception;
+use Plausible\Analytics\WP\Admin\Messages;
 use Plausible\Analytics\WP\Client\ApiException;
 use Plausible\Analytics\WP\Client\Lib\GuzzleHttp\Client as GuzzleClient;
 use Plausible\Analytics\WP\Client\Api\DefaultApi;
@@ -158,9 +159,9 @@ class Client {
 
 		// Any error codes outside the 4xx range should show a generic error.
 		if ( $code <= 399 || $code >= 500 ) {
-			$message = __( 'Something went wrong, try again later.', 'plausible-analytics' );
+			Messages::set_error( __( 'Something went wrong, try again later.', 'plausible-analytics' ) );
 
-			wp_send_json_error( $message );
+			wp_send_json_error( null, $code );
 		}
 
 		$message       = $e->getMessage();
@@ -184,7 +185,9 @@ class Client {
 			}
 		}
 
-		wp_send_json_error( sprintf( $error_message, $message ) );
+		Messages::set_error( sprintf( $error_message, $message ) );
+
+		wp_send_json_error( null, $code );
 	}
 
 	/**
