@@ -515,7 +515,7 @@ class API {
 				<?php endif; ?>
 				<a id="<?php echo $quick_action[ 'id' ]; ?>" class="no-underline text-sm leading-6 text-gray-900"
 				   target="<?php echo $quick_action[ 'target' ]; ?>" href="<?php echo $quick_action[ 'url' ]; ?>"
-				   title="<?php echo $quick_action[ 'label' ]; ?>" data-nonce="<?php echo $quick_action[ 'nonce' ]; ?>">
+				   title="<?php echo $quick_action[ 'label' ]; ?>">
 					<?php echo $quick_action[ 'label' ]; ?>
 				</a>
 			<?php endforeach; ?>
@@ -532,14 +532,14 @@ class API {
 	 */
 	private function get_quick_actions() {
 		$settings = Helpers::get_settings();
+		$nonce    = wp_create_nonce( 'plausible_analytics_show_wizard' );
 
 		return [
 			'getting-started' => [
 				'label'    => esc_html__( 'Getting Started Guide', 'plausible-analytics' ),
-				'url'      => '#',
+				'url'      => admin_url( "admin-ajax.php?action=plausible_analytics_show_wizard&_nonce=$nonce&redirect=1" ),
 				'id'       => 'show_wizard',
 				'target'   => '_self',
-				'nonce'    => wp_create_nonce( 'plausible_analytics_show_wizard' ),
 				'disabled' => ! empty( $settings[ 'self_hosted_domain' ] ),
 			],
 			'view-docs'       => [
@@ -547,14 +547,12 @@ class API {
 				'url'    => esc_url( 'https://plausible.io/docs' ),
 				'id'     => '',
 				'target' => '_blank',
-				'nonce'  => '',
 			],
 			'report-issue'    => [
 				'label'  => esc_html__( 'Contact Support', 'plausible-analytics' ),
 				'url'    => esc_url( 'https://plausible.io/contact' ),
 				'id'     => '',
 				'target' => '_blank',
-				'nonce'  => '',
 			],
 		];
 	}

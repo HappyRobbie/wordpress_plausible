@@ -50,20 +50,7 @@ class Ajax {
 
 		update_option( 'plausible_analytics_wizard_done', true );
 
-		if ( ! empty( $request_data[ 'redirect' ] ) ) {
-			$url = admin_url( 'options-general.php?page=plausible_analytics' );
-
-			// Redirect param points to a specific option.
-			if ( strpos( $request_data[ 'redirect' ], 'self-hosted' ) !== false ) {
-				$url .= '&tab=' . $request_data[ 'redirect' ];
-			} elseif ( $request_data[ 'redirect' ] !== '1' ) {
-				$url .= '#' . $request_data[ 'redirect' ];
-			}
-
-			wp_redirect( $url );
-
-			exit;
-		}
+		$this->maybe_handle_redirect( $request_data[ 'redirect' ] );
 
 		wp_send_json_success();
 	}
@@ -103,18 +90,44 @@ class Ajax {
 	}
 
 	/**
+	 * Makes the AJAX request redirect instead of e.g. return JSON.
+	 *
+	 * @param $direction
+	 *
+	 * @return void
+	 */
+	private function maybe_handle_redirect( $direction ) {
+		if ( ! empty( $direction ) ) {
+			$url = admin_url( 'options-general.php?page=plausible_analytics' );
+
+			// Redirect param points to a specific option.
+			if ( strpos( $direction, 'self-hosted' ) !== false ) {
+				$url .= '&tab=' . $direction;
+			} elseif ( $direction !== '1' ) {
+				$url .= '#' . $direction;
+			}
+
+			wp_redirect( $url );
+
+			exit;
+		}
+	}
+
+	/**
 	 * Removes the plausible_analytics_wizard_done row from the wp_options table, effectively displaying the wizard on next page load.
 	 *
 	 * @return void
 	 */
 	public function show_wizard() {
-		$post_data = $this->clean( $_POST );
+		$request_data = $this->clean( $_REQUEST );
 
-		if ( ! current_user_can( 'manage_options' ) || wp_verify_nonce( $post_data[ '_nonce' ], 'plausible_analytics_show_wizard' ) < 1 ) {
+		if ( ! current_user_can( 'manage_options' ) || wp_verify_nonce( $request_data[ '_nonce' ], 'plausible_analytics_show_wizard' ) < 1 ) {
 			wp_send_json_error( __( 'Not allowed.', 'plausible-analytics' ), 403 );
 		}
 
 		delete_option( 'plausible_analytics_wizard_done' );
+
+		$this->maybe_handle_redirect( $request_data[ 'redirect' ] );
 
 		wp_send_json_success();
 	}
