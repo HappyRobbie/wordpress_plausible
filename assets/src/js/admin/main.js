@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				let is_wizard = document.getElementById('plausible-analytics-wizard');
 
-				if (is_wizard !== undefined) {
+				if (is_wizard !== null) {
 					return;
 				}
 
@@ -175,7 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 
-			container.removeChild(additionalMessage);
+			if (additionalMessage !== undefined) {
+				container.removeChild(additionalMessage);
+			}
 		},
 
 		/**
@@ -389,11 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				return false;
 			}).then(response => {
 				if (response.success === true) {
-					if (plausible.data !== undefined && plausible.data.message !== undefined) {
+					if (response.data !== undefined && response.data.message !== undefined) {
 						plausible.notice(response.data.message);
 					}
 				} else {
-					if (plausible.data !== undefined && plausible.data.message !== undefined) {
+					if (response.data !== undefined && response.data.message !== undefined) {
 						plausible.notice(response.data.message, true);
 					}
 				}
