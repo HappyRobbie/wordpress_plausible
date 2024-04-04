@@ -236,7 +236,7 @@ class Ajax {
 		}
 
 		$additional_message_html = '';
-		$hooks                   = new Hooks();
+		$hooks                   = new Hooks( false );
 
 		if ( $option_name === 'proxy_enabled' ) {
 			$additional_message_html = $hooks->render_hook_field( Page::PROXY_WARNING_HOOK );

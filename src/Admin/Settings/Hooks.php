@@ -19,8 +19,10 @@ class Hooks extends API {
 	/**
 	 * Build class properties.
 	 */
-	public function __construct() {
-		$this->init_hooks();
+	public function __construct( $init = true ) {
+		if ( $init ) {
+			$this->init_hooks();
+		}
 	}
 
 	/**
