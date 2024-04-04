@@ -130,6 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
+				let is_wizard = document.getElementById('plausible-analytics-wizard');
+
+				if (is_wizard !== undefined) {
+					return;
+				}
+
 				if (response.additional !== undefined) {
 					plausible.renderAdditionalMessages(response.additional, e.target);
 				} else {
@@ -288,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			data.append('action', 'plausible_analytics_show_wizard');
 			data.append('_nonce', e.target.dataset.nonce);
 
-			plausible.ajax(data, null, false);
+			plausible.ajax(data, null);
 		},
 
 		/**
@@ -383,9 +389,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				return false;
 			}).then(response => {
 				if (response.success === true) {
-					plausible.notice(response.data.message);
+					if (plausible.data !== undefined && plausible.data.message !== undefined) {
+						plausible.notice(response.data.message);
+					}
 				} else {
-					plausible.notice(response.data.message, true);
+					if (plausible.data !== undefined && plausible.data.message !== undefined) {
+						plausible.notice(response.data.message, true);
+					}
 				}
 
 				let event = new CustomEvent('plausibleAjaxDone', {detail: response});
