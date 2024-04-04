@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Provisioning.
+ *
  * @since      2.0.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -56,6 +57,7 @@ class Provisioning {
 
 	/**
 	 * Action & filter hooks.
+	 *
 	 * @return void
 	 * @throws ApiException
 	 */
@@ -72,6 +74,7 @@ class Provisioning {
 
 	/**
 	 * Show an error on the settings screen if cURL isn't enabled on this machine.
+	 *
 	 * @return void
 	 */
 	public function add_curl_error() {
