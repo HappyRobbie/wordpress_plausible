@@ -78,9 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		 * Toggle Option and store in DB.
 		 *
 		 * @param e
-		 * @param showNotice
 		 */
-		toggleOption: function (e, showNotice = true) {
+		toggleOption: function (e) {
 			/**
 			 * Make sure event target is a toggle.
 			 */
@@ -89,8 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			const button = e.target.closest('button');
-			let toggle = '';
-			let toggleStatus = '';
+			let toggle;
 
 			// The button element is clicked.
 			if (e.target.type === 'submit') {
@@ -99,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				// The span element is clicked.
 				toggle = e.target.closest('span');
 			}
+
+			let toggleStatus;
 
 			if (button.classList.contains('bg-indigo-600')) {
 				// Toggle: off
@@ -121,23 +121,55 @@ document.addEventListener('DOMContentLoaded', () => {
 			form.append('is_list', button.dataset.list);
 			form.append('_nonce', plausible.nonce);
 
-			let reload = false;
+			let result = plausible.ajax(form, null);
 
-			/**
-			 * When either of these options are enabled, we need the page to reload, to display notices/warnings.
-			 */
-			if (button.name === 'proxy_enabled' || button.name === 'enable_analytics_dashboard') {
-				reload = true;
-				showNotice = false;
-			}
-
-			let result = plausible.ajax(form, null, showNotice, reload);
-
-			result.then(function (success) {
-				if (success === false) {
+			result.then(function (response) {
+				if (response.success === false) {
 					plausible.toggleOption(e, false);
+
+					return;
+				}
+
+				if (response.additional !== undefined) {
+					plausible.renderAdditionalMessages(response.additional, e.target);
+				} else {
+					plausible.removeAdditionalMessage(e.target);
 				}
 			});
+		},
+
+		/**
+		 * Renders a HTML box containing additional information about the enabled option.
+		 *
+		 * @param html
+		 * @param target
+		 */
+		renderAdditionalMessages: function (html, target) {
+			let container = target.closest('.plausible-analytics-group');
+
+			container.innerHTML += html;
+		},
+
+		/**
+		 * Removes the additional information box when the option is disabled.
+		 *
+		 * @param target
+		 */
+		removeAdditionalMessage: function (target) {
+			let container = target.closest('.plausible-analytics-group');
+			let additionalMessage;
+
+			if (container.children.length > 0) {
+				for (let i = 0; i < container.children.length; i++) {
+					if (container.children[i].classList.contains('plausible-analytics-hook')) {
+						additionalMessage = container.children[i];
+
+						break;
+					}
+				}
+			}
+
+			container.removeChild(additionalMessage);
 		},
 
 		/**
@@ -163,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			button.children[0].classList.remove('hidden');
 			button.setAttribute('disabled', 'disabled');
 
-			plausible.ajax(form, button, null, true);
+			plausible.ajax(form, button, null);
 		},
 
 		/**
@@ -188,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				data.append('options', JSON.stringify(options));
 				data.append('_nonce', plausible.nonce);
 
-				plausible.ajax(data, null, false, true);
+				plausible.ajax(data, null, false);
 			}
 		},
 
@@ -256,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			data.append('action', 'plausible_analytics_show_wizard');
 			data.append('_nonce', e.target.dataset.nonce);
 
-			plausible.ajax(data, null, false, true);
+			plausible.ajax(data, null, false);
 		},
 
 		/**
@@ -328,12 +360,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		 *
 		 * @param data
 		 * @param button
-		 * @param showNotice
-		 * @param reload
 		 *
 		 * @return object
 		 */
-		ajax: function (data, button = null, showNotice = true, reload = false) {
+		ajax: function (data, button = null) {
 			return fetch(
 				ajaxurl,
 				{
@@ -352,23 +382,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				return false;
 			}).then(response => {
-				if (showNotice === true) {
-					if (response.success === true) {
-						plausible.notice(response.data);
-					} else {
-						plausible.notice(response.data, true);
-					}
+				if (response.success === true) {
+					plausible.notice(response.data.message);
+				} else {
+					plausible.notice(response.data.message, true);
 				}
 
 				let event = new CustomEvent('plausibleAjaxDone', {detail: response});
 
 				document.dispatchEvent(event);
 
-				if (reload === true) {
-					window.location.reload();
-				}
-
-				return response.success;
+				return response.data;
 			});
 		},
 

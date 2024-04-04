@@ -1,0 +1,225 @@
+<?php
+/**
+ * Plausible Analytics | Settings Page Hooks.
+ *
+ * @since        2.1.0
+ * @package      WordPress
+ * @subpackage   Plausible Analytics
+ *
+ * @noinspection HtmlUnknownTarget
+ */
+
+namespace Plausible\Analytics\WP\Admin\Settings;
+
+use Plausible\Analytics\WP\Helpers;
+
+defined( 'ABSPATH' ) || exit;
+
+class Hooks extends API {
+	/**
+	 * Build class properties.
+	 */
+	public function __construct() {
+		$this->init_hooks();
+	}
+
+	/**
+	 * Init action hooks.
+	 *
+	 * @return void
+	 */
+	private function init_hooks() {
+		add_action( 'plausible_analytics_toggle_option_message', [ $this, 'maybe_modify_option_message' ], 9, 3 );
+		add_action( 'plausible_analytics_toggle_option_message', [ $this, 'maybe_render_additional_message' ], 10, 3 );
+		add_action( 'plausible_analytics_settings_api_connect_button', [ $this, 'connect_button' ] );
+		add_action( 'plausible_analytics_settings_api_token_missing', [ $this, 'missing_api_token_warning' ] );
+		add_action( 'plausible_analytics_settings_option_not_available_in_ce', [ $this, 'option_na_in_ce' ] );
+		add_action( 'plausible_analytics_settings_proxy_warning', [ $this, 'proxy_warning' ] );
+		add_action( 'plausible_analytics_settings_enable_analytics_dashboard_notice', [ $this, 'enable_analytics_dashboard_notice' ] );
+		add_action( 'plausible_analytics_settings_option_disabled_by_missing_api_token', [ $this, 'option_disabled_by_missing_api_token' ] );
+		add_action( 'plausible_analytics_settings_option_disabled_by_proxy', [ $this, 'option_disabled_by_proxy' ] );
+	}
+
+	/**
+	 * We modify the response message here, because otherwise the response to enabling the Proxy option would be "Enable proxy enabled." Sounds
+	 * weird, doesn't it?
+	 *
+	 * @param $response
+	 * @param $option_name
+	 * @param $toggle_status
+	 *
+	 * @return mixed
+	 */
+	public function maybe_modify_option_message( $response, $option_name, $toggle_status ) {
+		if ( $option_name === 'proxy_enabled' ) {
+			$response[ 'message' ] = __( 'Proxy enabled.', 'plausible-analytics' );
+
+			if ( ! $toggle_status ) {
+				$response[ 'message' ] = __( 'Proxy disabled.', 'plausible-analytics' );
+			}
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Adds the 'additional' array element to $message if applicable.
+	 *
+	 * @param $response
+	 * @param $option_name
+	 * @param $toggle_status
+	 *
+	 * @return array
+	 */
+	public function maybe_render_additional_message( $response, $option_name, $toggle_status ) {
+		if ( ! $toggle_status ) {
+			return $response;
+		}
+
+		$additional_message_html = '';
+
+		if ( $option_name === 'proxy_enabled' ) {
+			$additional_message_html = $this->render_hook_field( Page::PROXY_WARNING_HOOK );
+		}
+
+		if ( $option_name === 'enable_analytics_dashboard' ) {
+			$additional_message_html = $this->render_hook_field( Page::ENABLE_ANALYTICS_DASH_NOTICE );
+		}
+
+		if ( ! $additional_message_html ) {
+			return $response;
+		}
+
+		return array_merge( $response, [ 'additional' => $additional_message_html ] );
+	}
+
+	/**
+	 * Display connect button.
+	 *
+	 * @output HTML
+	 */
+	public function connect_button() {
+		$settings = Helpers::get_settings();
+
+		if ( ! empty( $settings[ 'domain_name' ] ) && ! empty( $settings[ 'api_token' ] ) ): ?>
+
+		<?php else: ?>
+			<?php
+			$url = sprintf( 'https://plausible.io/%s/settings/integrations?new_token=Wordpress', Helpers::get_domain() );
+			?>
+			<a href="<?php esc_attr_e( $url, 'plausible-analytics' ); ?>" target="_blank" class="plausible-analytics-btn">
+				<?php esc_html_e( 'Connect to Plausible', 'plausible-analytics' ); ?>
+			</a>
+		<?php endif; ?>
+		<?php
+	}
+
+	/**
+	 * Renders the warning for the Enable Proxy option.
+	 *
+	 * @since  1.3.0
+	 * @output HTML
+	 */
+	public function proxy_warning() {
+		if ( ! empty( Helpers::get_settings()[ 'self_hosted_domain' ] ) ) {
+			$this->option_na_in_ce();
+		} else {
+			echo sprintf(
+				wp_kses(
+					__(
+						'After enabling this option, please check your Plausible dashboard to make sure stats are being recorded. Are stats not being recorded? Do <a href="%s" target="_blank">reach out to us</a>. We\'re here to help!',
+						'plausible-analytics'
+					),
+					'post'
+				),
+				'https://plausible.io/contact'
+			);
+		}
+	}
+
+	/**
+	 * Show notice when API token notice is disabled.
+	 *
+	 * @output HTML
+	 */
+	public function option_na_in_ce() {
+		echo wp_kses(
+			__(
+				'This feature is not available in Plausible Community Edition.',
+				'plausible-analytics'
+			),
+			'post'
+		);
+	}
+
+	/**
+	 * Renders the analytics dashboard link if the option is enabled.
+	 *
+	 * @since  2.0.0
+	 * @output HTML
+	 */
+	public function enable_analytics_dashboard_notice() {
+		if ( ! empty( Helpers::get_settings()[ 'enable_analytics_dashboard' ] ) ) {
+			echo sprintf(
+				wp_kses(
+					__(
+						'Your analytics dashboard is available <a href="%s">here</a>.',
+						'plausible-analytics'
+					),
+					'post'
+				),
+				admin_url( 'index.php?page=plausible_analytics_statistics' )
+			);
+		}
+	}
+
+	/**
+	 * Renders the Self-hosted warning if the Proxy is enabled.
+	 *
+	 * @since  1.3.3
+	 * @output HTML
+	 */
+	public function option_disabled_by_proxy() {
+		if ( Helpers::proxy_enabled() ) {
+			echo wp_kses(
+				__(
+					'This option is disabled, because the <strong>Proxy</strong> setting is enabled under <em>Settings</em>.',
+					'plausible-analytics'
+				),
+				'post'
+			);
+		}
+	}
+
+	/**
+	 * Display missing API token warning.
+	 *
+	 * @output HTML
+	 */
+	public function missing_api_token_warning() {
+		echo sprintf(
+			wp_kses(
+				__(
+					'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above.',
+					'plausible-analytics'
+				),
+				'post'
+			)
+		);
+	}
+
+	/**
+	 * Display option disabled by missing API token warning.
+	 *
+	 * @output HTML
+	 */
+	public function option_disabled_by_missing_api_token() {
+		echo wp_kses(
+			__(
+				'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above to enable this option.',
+				'plausible-analytics'
+			),
+			'post'
+		);
+	}
+}

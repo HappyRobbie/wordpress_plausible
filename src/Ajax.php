@@ -10,6 +10,8 @@
 namespace Plausible\Analytics\WP;
 
 use Plausible\Analytics\WP\Admin\Messages;
+use Plausible\Analytics\WP\Admin\Settings\API;
+use Plausible\Analytics\WP\Admin\Settings\Page;
 use Plausible\Analytics\WP\Client\ApiException;
 
 defined( 'ABSPATH' ) || exit;
@@ -155,12 +157,23 @@ class Ajax {
 		// Update all the options to plausible settings.
 		update_option( 'plausible_analytics_settings', $settings );
 
-		do_action( 'plausible_analytics_settings_saved' );
+		/**
+		 * Allow devs to perform additional actions.
+		 */
+		do_action( 'plausible_analytics_settings_saved', $settings, $post_data[ 'option_name' ], $post_data[ 'toggle_status' ] );
 
 		$option_label  = $post_data[ 'option_label' ];
 		$toggle_status = $post_data[ 'toggle_status' ] === 'on' ? __( 'enabled', 'plausible-analytics' ) : __( 'disabled', 'plausible-analytics' );
+		$message       = apply_filters(
+			'plausible_analytics_toggle_option_message',
+			[
+				'message' => sprintf( '%s %s.', $option_label, $toggle_status ),
+			],
+			$post_data[ 'option_name' ],
+			$post_data[ 'toggle_status' ]
+		);
 
-		wp_send_json_success( sprintf( '%s %s.', $option_label, $toggle_status ), 200 );
+		wp_send_json_success( $message, 200 );
 	}
 
 	/**

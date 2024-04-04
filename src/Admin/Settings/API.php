@@ -680,7 +680,7 @@ class API {
 				( is_array( $slug ) ? checked( $value, in_array( $value, $slug, false ) ? $value : false, false ) : checked( $value, $slug, false ) );
 		$disabled = ! empty( $field[ 'disabled' ] ) ? 'disabled' : '';
 		?>
-		<div class="flex items-center mt-4 space-x-3">
+		<div class="toggle-container flex items-center mt-4 space-x-3">
 			<button
 				class="plausible-analytics-toggle <?php echo $checked && ! $disabled ? 'bg-indigo-600' :
 					'bg-gray-200'; ?> dark:bg-gray-700 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring"
@@ -759,7 +759,7 @@ class API {
 
 		ob_start();
 		?>
-		<div class="">
+		<div class="plausible-analytics-hook transition-opacity transition-300">
 			<div class="rounded-md p-4 mt-4 relative <?php echo esc_attr( $box_class ); ?> rounded-t-md rounded-b-none">
 				<div class="flex">
 					<div class="flex-shrink-0">

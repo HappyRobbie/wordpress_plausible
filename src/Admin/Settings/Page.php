@@ -10,11 +10,51 @@
 
 namespace Plausible\Analytics\WP\Admin\Settings;
 
+use Exception;
 use Plausible\Analytics\WP\Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
 class Page extends API {
+	const OPTION_NOT_AVAILABLE_IN_CE_HOOK           = [
+		[
+			'label' => '',
+			'slug'  => 'option_not_available_in_ce',
+			'type'  => 'hook',
+		],
+	];
+
+	const PROXY_WARNING_HOOK                        = [
+		'label' => '',
+		'slug'  => 'proxy_warning',
+		'type'  => 'hook',
+	];
+
+	const OPTION_DISABLED_BY_PROXY_HOOK             = [
+		'label' => '',
+		'slug'  => 'option_disabled_by_proxy',
+		'type'  => 'hook',
+	];
+
+	const API_TOKEN_MISSING_HOOK                    = [
+		'label' => '',
+		'slug'  => 'api_token_missing',
+		'type'  => 'hook',
+	];
+
+	const OPTION_DISABLED_BY_MISSING_API_TOKEN_HOOK = [
+		'label' => '',
+		'slug'  => 'option_disabled_by_missing_api_token',
+		'type'  => 'hook',
+	];
+
+	const ENABLE_ANALYTICS_DASH_NOTICE              = [
+		'label'     => '',
+		'slug'      => 'enable_analytics_dashboard_notice',
+		'type'      => 'hook',
+		'hook_type' => 'success',
+	];
+
 	/**
 	 * @var array|array[] $fields
 	 */
@@ -26,6 +66,7 @@ class Page extends API {
 	 * @since  1.3.0
 	 * @access public
 	 * @return void
+	 * @throws Exception
 	 */
 	public function __construct() {
 		$this->init();
@@ -349,17 +390,9 @@ class Page extends API {
 		 * If self-hosted domain setting has a value, add option disabled notice to Ecommerce revenue toggle.
 		 */
 		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
-			$option_disabled_hook = [
-				[
-					'label' => '',
-					'slug'  => 'option_not_available_in_ce',
-					'type'  => 'hook',
-				],
-			];
-
 			$fields = $this->fields[ 'general' ][ 1 ][ 'fields' ];
 
-			array_splice( $fields, 5, 0, $option_disabled_hook );
+			array_splice( $fields, 5, 0, self::OPTION_NOT_AVAILABLE_IN_CE_HOOK );
 
 			$this->fields[ 'general' ][ 1 ][ 'fields' ] = $fields;
 		}
@@ -370,78 +403,49 @@ class Page extends API {
 		 * @see self::proxy_warning()
 		 */
 		if ( Helpers::proxy_enabled() || ! empty( $settings[ 'self_hosted_domain' ] ) ) {
-			$this->fields[ 'general' ][ 2 ][ 'fields' ][] = [
-				'label' => '',
-				'slug'  => 'proxy_warning',
-				'type'  => 'hook',
-			];
+			$this->fields[ 'general' ][ 2 ][ 'fields' ][] = self::PROXY_WARNING_HOOK;
 		}
 
 		/**
 		 * If proxy is enabled, disable Self-hosted fields and display a warning.
 		 */
 		if ( Helpers::proxy_enabled() ) {
-			$this->fields[ 'self-hosted' ][ 0 ][ 'fields' ][] = [
-				'label' => '',
-				'slug'  => 'option_disabled_by_proxy',
-				'type'  => 'hook',
-			];
-			$this->fields[ 'self-hosted' ][ 1 ][ 'fields' ][] = [
-				'label' => '',
-				'slug'  => 'option_disabled_by_proxy',
-				'type'  => 'hook',
-			];
+			$this->fields[ 'self-hosted' ][ 0 ][ 'fields' ][] = self::OPTION_DISABLED_BY_PROXY_HOOK;
+			$this->fields[ 'self-hosted' ][ 1 ][ 'fields' ][] = self::OPTION_DISABLED_BY_PROXY_HOOK;
 		}
 
+		/**
+		 * No API token is entered.
+		 */
 		if ( empty( $settings[ 'api_token' ] ) ) {
-			$this->fields[ 'general' ][ 0 ][ 'fields' ][] = [
-				'label' => '',
-				'slug'  => 'api_token_missing',
-				'type'  => 'hook',
-			];
-
-			$this->fields[ 'general' ][ 3 ][ 'fields' ][] = [
-				'label' => '',
-				'slug'  => 'option_disabled_by_missing_api_token',
-				'type'  => 'hook',
-			];
+			$this->fields[ 'general' ][ 0 ][ 'fields' ][] = self::API_TOKEN_MISSING_HOOK;
+			$this->fields[ 'general' ][ 3 ][ 'fields' ][] = self::OPTION_DISABLED_BY_MISSING_API_TOKEN_HOOK;
 		}
 
 		/**
 		 * If View Stats is enabled, display notice.
 		 */
 		if ( ! empty( $settings[ 'api_token' ] ) && ! empty( $settings[ 'enable_analytics_dashboard' ] ) ) {
-			$this->fields[ 'general' ][ 3 ][ 'fields' ][] = [
-				'label'     => '',
-				'slug'      => 'enable_analytics_dashboard_notice',
-				'type'      => 'hook',
-				'hook_type' => 'success',
-			];
+			$this->fields[ 'general' ][ 3 ][ 'fields' ][] = self::ENABLE_ANALYTICS_DASH_NOTICE;
 		}
 	}
 
 	/**
-	 * Action hooks.
+	 * Init action hooks.
 	 *
 	 * @return void
 	 */
 	private function init() {
 		/**
-		 * Core hooks
+		 * WP Core hooks
 		 */
 		add_action( 'admin_menu', [ $this, 'register_menu' ] );
 		add_action( 'in_admin_header', [ $this, 'add_background_color' ] );
 
 		/**
-		 * Plugin hooks
+		 * Hooks that run on settings page.
 		 */
-		add_action( 'plausible_analytics_settings_api_connect_button', [ $this, 'connect_button' ] );
-		add_action( 'plausible_analytics_settings_api_token_missing', [ $this, 'api_token_missing' ] );
-		add_action( 'plausible_analytics_settings_option_not_available_in_ce', [ $this, 'option_na_in_ce' ] );
-		add_action( 'plausible_analytics_settings_proxy_warning', [ $this, 'proxy_warning' ] );
-		add_action( 'plausible_analytics_settings_enable_analytics_dashboard_notice', [ $this, 'enable_analytics_dashboard_notice' ] );
-		add_action( 'plausible_analytics_settings_option_disabled_by_missing_api_token', [ $this, 'option_disabled_by_missing_api_token' ] );
-		add_action( 'plausible_analytics_settings_option_disabled_by_proxy', [ $this, 'option_disabled_by_proxy' ] );
+		new Hooks();
 	}
 
 	/**
@@ -486,7 +490,7 @@ class Page extends API {
 	 */
 	public function register_menu() {
 		$user       = wp_get_current_user();
-		$user_roles = isset( $user->roles ) ? $user->roles : [];
+		$user_roles = $user->roles ?? [];
 		$is_allowed = false;
 		/**
 		 * By default, only allow administrators to access the Statistics page.
@@ -684,131 +688,5 @@ class Page extends API {
 			</div>
 			<?php
 		}
-	}
-
-	/**
-	 * Display connect button.
-	 *
-	 * @return void
-	 */
-	public function connect_button() {
-		$settings = Helpers::get_settings();
-
-		if ( ! empty( $settings[ 'domain_name' ] ) && ! empty( $settings[ 'api_token' ] ) ): ?>
-
-		<?php else: ?>
-			<?php
-			$url = sprintf( 'https://plausible.io/%s/settings/integrations?new_token=Wordpress', Helpers::get_domain() );
-			?>
-			<a href="<?php esc_attr_e( $url, 'plausible-analytics' ); ?>" target="_blank" class="plausible-analytics-btn">
-				<?php esc_html_e( 'Connect to Plausible', 'plausible-analytics' ); ?>
-			</a>
-		<?php endif; ?>
-		<?php
-	}
-
-	/**
-	 * Renders the warning for the Enable Proxy option.
-	 *
-	 * @since 1.3.0
-	 * @return void
-	 */
-	public function proxy_warning() {
-		if ( ! empty( Helpers::get_settings()[ 'self_hosted_domain' ] ) ) {
-			$this->option_na_in_ce();
-		} else {
-			echo sprintf(
-				wp_kses(
-					__(
-						'After enabling this option, please check your Plausible dashboard to make sure stats are being recorded. Are stats not being recorded? Do <a href="%s" target="_blank">reach out to us</a>. We\'re here to help!',
-						'plausible-analytics'
-					),
-					'post'
-				),
-				'https://plausible.io/contact'
-			);
-		}
-	}
-
-	/**
-	 * Show notice when API token notice is disabled.
-	 *
-	 * @return void
-	 */
-	public function option_na_in_ce() {
-		echo wp_kses(
-			__(
-				'This feature is not available in Plausible Community Edition.',
-				'plausible-analytics'
-			),
-			'post'
-		);
-	}
-
-	/**
-	 * Renders the analytics dashboard link if the option is enabled.
-	 *
-	 * @since 2.0.0
-	 * @return void
-	 */
-	public function enable_analytics_dashboard_notice() {
-		if ( ! empty( Helpers::get_settings()[ 'enable_analytics_dashboard' ] ) ) {
-			echo sprintf(
-				wp_kses(
-					__(
-						'Your analytics dashboard is available <a href="%s">here</a>.',
-						'plausible-analytics'
-					),
-					'post'
-				),
-				admin_url( 'index.php?page=plausible_analytics_statistics' )
-			);
-		}
-	}
-
-	/**
-	 * Renders the Self-hosted warning if the Proxy is enabled.
-	 *
-	 * @since 1.3.3
-	 * @return void
-	 */
-	public function option_disabled_by_proxy() {
-		if ( Helpers::proxy_enabled() ) {
-			echo wp_kses(
-				__(
-					'This option is disabled, because the <strong>Proxy</strong> setting is enabled under <em>Settings</em>.',
-					'plausible-analytics'
-				),
-				'post'
-			);
-		}
-	}
-
-	/**
-	 * @return void
-	 */
-	public function api_token_missing() {
-		echo sprintf(
-			wp_kses(
-				__(
-					'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above.',
-					'plausible-analytics'
-				),
-				'post'
-			)
-		);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function option_disabled_by_missing_api_token() {
-		echo wp_kses(
-			__(
-				'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above to enable this option.',
-				'plausible-analytics'
-			),
-			'post'
-		);
 	}
 }
