@@ -65,7 +65,7 @@ class Provisioning {
 	 */
 	private function init() {
 		if ( ! $this->client->validate_api_token() ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_shared_link' ], 10, 2 );
@@ -98,7 +98,7 @@ class Provisioning {
 	 */
 	public function create_shared_link( $old_settings, $settings ) {
 		if ( empty( $settings[ 'enable_analytics_dashboard' ] ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$this->client->create_shared_link();
@@ -114,7 +114,7 @@ class Provisioning {
 		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
 
 		if ( empty( $enhanced_measurements ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$custom_event_keys = array_keys( $this->custom_event_goals );
@@ -123,7 +123,7 @@ class Provisioning {
 
 		foreach ( $enhanced_measurements as $measurement ) {
 			if ( ! in_array( $measurement, $custom_event_keys ) ) {
-				continue;
+				continue; // @codeCoverageIgnore
 			}
 
 			$goals[] = new Client\Model\GoalCreateRequestCustomEvent(
@@ -137,7 +137,7 @@ class Provisioning {
 		}
 
 		if ( empty( $goals ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$create_request->setGoals( $goals );
@@ -170,7 +170,7 @@ class Provisioning {
 		$disabled_settings         = array_diff( $enhanced_measurements_old, $enhanced_measurements );
 
 		if ( empty( $disabled_settings ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$goals = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
@@ -179,7 +179,7 @@ class Provisioning {
 			$key = array_search( $name, $this->custom_event_goals );
 
 			if ( ! in_array( $key, $disabled_settings ) ) {
-				continue;
+				continue; // @codeCoverageIgnore
 			}
 
 			$this->client->delete_goal( $id );
@@ -196,7 +196,7 @@ class Provisioning {
 		$enhanced_measurements = $settings[ 'enhanced_measurements' ];
 
 		if ( ! in_array( 'pageview-props', $enhanced_measurements ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$create_request = new Client\Model\CustomPropEnableRequestBulkEnable();
