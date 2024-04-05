@@ -39,9 +39,10 @@ class Upgrades {
 	 * @access public
 	 * @return void
 	 *
-	 * @codeCoverageIgnore
+	 * @throws Exception
 	 */
 	public function run() {
+		// @codeCoverageIgnoreStart
 		$plausible_analytics_version = get_option( 'plausible_analytics_version' );
 
 		// If version doesn't exist, then consider it `1.0.0`.
@@ -72,6 +73,7 @@ class Upgrades {
 		if ( version_compare( $plausible_analytics_version, '2.0.3', '<' ) ) {
 			$this->upgrade_to_203();
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Add required upgrade routines for future versions here.
 	}

@@ -45,9 +45,9 @@ class Provisioning {
 		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
 		 */
 		if ( ! extension_loaded( 'curl' ) && ! ini_get( 'allow_url_fopen' ) ) {
-			add_action( 'init', [ $this, 'add_curl_error' ] );
+			add_action( 'init', [ $this, 'add_curl_error' ] ); // @codeCoverageIgnore
 
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$this->client = new Client();
@@ -60,6 +60,8 @@ class Provisioning {
 	 *
 	 * @return void
 	 * @throws ApiException
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function init() {
 		if ( ! $this->client->validate_api_token() ) {
@@ -76,6 +78,8 @@ class Provisioning {
 	 * Show an error on the settings screen if cURL isn't enabled on this machine.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function add_curl_error() {
 		Messages::set_error(
