@@ -14,6 +14,9 @@ use Plausible\Analytics\WP\Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * @codeCoverageIgnore
+ */
 class API {
 	/**
 	 * Admin Setting Fields.
