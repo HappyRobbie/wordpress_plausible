@@ -55,7 +55,7 @@ class Compatibility {
 			add_filter( 'litespeed_optm_gm_js_exc', [ $this, 'exclude_plausible_inline_js' ] );
 		}
 
-		if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
+		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
 			add_filter( 'rest_url', [ $this, 'wpml_compatibility' ], 10, 1 );
 		}
 	}
