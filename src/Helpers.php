@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Helpers
+ *
  * @since      1.0.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -16,11 +17,13 @@ defined( 'ABSPATH' ) || exit;
 class Helpers {
 	/**
 	 * Get Analytics URL.
+	 *
 	 * @since  1.0.0
 	 *
 	 * @param bool $local Return the Local JS file IF proxy is enabled.
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function get_js_url( $local = false ) {
 		$settings       = self::get_settings();
@@ -54,6 +57,7 @@ class Helpers {
 
 	/**
 	 * Get Settings.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return array
@@ -81,6 +85,7 @@ class Helpers {
 
 	/**
 	 * Get filename (without file extension)
+	 *
 	 * @since 1.3.0
 	 * @return string
 	 */
@@ -144,6 +149,7 @@ class Helpers {
 
 	/**
 	 * Get (and generate/store if non-existent) proxy resources.
+	 *
 	 * @return array
 	 * @throws Exception
 	 */
@@ -194,6 +200,7 @@ class Helpers {
 
 	/**
 	 * A convenient way to retrieve the absolute path to the local JS file. Proxy should be enabled when this method is called!
+	 *
 	 * @return string
 	 * @throws Exception
 	 */
@@ -203,6 +210,7 @@ class Helpers {
 
 	/**
 	 * Downloads a remote file to this server.
+	 *
 	 * @since 1.3.0
 	 *
 	 * @param string $local_file  Absolute path to where to store the $remote_file.
@@ -234,6 +242,7 @@ class Helpers {
 
 	/**
 	 * Get entered Domain Name or provide alternative if not entered.
+	 *
 	 * @since  1.0.0
 	 * @access public
 	 * @return string
@@ -252,6 +261,7 @@ class Helpers {
 
 	/**
 	 * Get Data API URL.
+	 *
 	 * @since  1.2.2
 	 * @access public
 	 * @return string
@@ -278,6 +288,7 @@ class Helpers {
 
 	/**
 	 * Returns the Proxy's REST endpoint.
+	 *
 	 * @return string
 	 * @throws Exception
 	 */
@@ -297,6 +308,7 @@ class Helpers {
 
 	/**
 	 * Get user role for the logged-in user.
+	 *
 	 * @since  1.3.0
 	 * @access public
 	 * @return string
