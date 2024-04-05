@@ -15,6 +15,9 @@ use Plausible\Analytics\WP\Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Hooks extends API {
 	/**
 	 * Build class properties.
