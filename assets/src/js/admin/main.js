@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					plausible.showMessage(messages.success, 'success');
 				}
 
-				if (messages.additional.length === 0) {
+				if (messages.additional.length === 0 || document.getElementById('plausible-analytics-wizard') !== null) {
 					return;
 				}
 

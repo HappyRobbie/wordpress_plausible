@@ -212,8 +212,14 @@ class Ajax {
 
 		$option_label  = $post_data[ 'option_label' ];
 		$toggle_status = $post_data[ 'toggle_status' ] === 'on' ? __( 'enabled', 'plausible-analytics' ) : __( 'disabled', 'plausible-analytics' );
+		$message       = apply_filters(
+			'plausible_analytics_toggle_option_success_message',
+			sprintf( '%s %s.', $option_label, $toggle_status ),
+			$post_data[ 'option_name' ],
+			$post_data[ 'toggle_status' ]
+		);
 
-		Messages::set_success( sprintf( '%s %s.', $option_label, $toggle_status ) );
+		Messages::set_success( $message );
 
 		$additional = $this->maybe_render_additional_message( $post_data[ 'option_name' ], $post_data[ 'toggle_status' ] );
 

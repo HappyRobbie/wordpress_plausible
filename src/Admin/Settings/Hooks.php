@@ -31,6 +31,7 @@ class Hooks extends API {
 	 * @return void
 	 */
 	private function init_hooks() {
+		add_filter( 'plausible_analytics_toggle_option_success_message', [ $this, 'maybe_modify_success_message' ], 10, 3 );
 		add_action( 'plausible_analytics_settings_api_connect_button', [ $this, 'connect_button' ] );
 		add_action( 'plausible_analytics_settings_api_token_missing', [ $this, 'missing_api_token_warning' ] );
 		add_action( 'plausible_analytics_settings_option_not_available_in_ce', [ $this, 'option_na_in_ce' ] );
@@ -38,6 +39,27 @@ class Hooks extends API {
 		add_action( 'plausible_analytics_settings_enable_analytics_dashboard_notice', [ $this, 'enable_analytics_dashboard_notice' ] );
 		add_action( 'plausible_analytics_settings_option_disabled_by_missing_api_token', [ $this, 'option_disabled_by_missing_api_token' ] );
 		add_action( 'plausible_analytics_settings_option_disabled_by_proxy', [ $this, 'option_disabled_by_proxy' ] );
+	}
+
+	/**
+	 * Modifies "Enable proxy enabled" to "Proxy enabled", etc.
+	 *
+	 * @param $message
+	 * @param $option_name
+	 * @param $status
+	 *
+	 * @return string
+	 */
+	public function maybe_modify_success_message( $message, $option_name, $status ) {
+		if ( $option_name !== 'proxy_enabled' ) {
+			return $message;
+		}
+
+		if ( ! $status ) {
+			return __( 'Proxy disabled.', 'plausible-analytics' );
+		}
+
+		return __( 'Proxy enabled.', 'plausible-analytics' );
 	}
 
 	/**

@@ -110,6 +110,7 @@ class Module {
 	 *
 	 * @since 1.3.0
 	 * @return void.
+	 * @throws Exception
 	 */
 	public function uninstall() {
 		if ( ! current_user_can( 'install_plugins' ) ) {

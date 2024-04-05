@@ -45,7 +45,7 @@
       "@php ./vendor/bin/phpunit --configuration phpunit-with-integration.xml --no-coverage"
     ],
     "coverage": [
-      "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover ./build/clover.xml"
+      "XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit-with-integration.xml --coverage-clover ./build/clover.xml"
     ]
   },
   "scripts-descriptions": {
