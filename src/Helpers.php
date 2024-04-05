@@ -40,7 +40,7 @@ class Helpers {
 
 		// Allows for hard-coding the self-hosted domain.
 		if ( defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ) {
-			$domain = PLAUSIBLE_SELF_HOSTED_DOMAIN;
+			$domain = PLAUSIBLE_SELF_HOSTED_DOMAIN; // @codeCoverageIgnore
 		}
 
 		/**
@@ -152,6 +152,8 @@ class Helpers {
 	 *
 	 * @return array
 	 * @throws Exception
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function get_proxy_resources() {
 		static $resources;
@@ -225,7 +227,7 @@ class Helpers {
 
 		if ( is_wp_error( $file_contents ) ) {
 			// TODO: add error handling?
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		/**
