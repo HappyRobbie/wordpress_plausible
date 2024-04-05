@@ -14,9 +14,6 @@ use Exception;
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * @codeCoverageIgnore
- */
 class Cron {
 	/**
 	 * Build class

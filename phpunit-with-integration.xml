@@ -29,6 +29,7 @@
 			<directory suffix=".php">src/Client</directory>
 			<directory suffix=".php">src/Admin/Settings</directory>
 			<file>src/Actions.php</file>
+			<file>src/Cron.php</file>
 			<file>src/Uninstall.php</file>
 			<file>src/Admin/Actions.php</file>
 			<file>src/Admin/Filters.php</file>
