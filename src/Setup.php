@@ -43,7 +43,7 @@ class Setup {
 		$upload_dir = Helpers::get_proxy_resource( 'cache_dir' );
 
 		if ( ! is_dir( $upload_dir ) ) {
-			wp_mkdir_p( $upload_dir );
+			wp_mkdir_p( $upload_dir ); // @codeCoverageIgnore
 		}
 	}
 
