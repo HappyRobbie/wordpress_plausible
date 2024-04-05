@@ -75,7 +75,8 @@ jobs:
         run: ./vendor/bin/phpunit --configuration phpunit-with-integration.xml --no-coverage
 
       - name: Generate code coverage
-        run: ./vendor/bin/phpunit --configuration phpunit-with-integration.xml --coverage-clover ./clover.xml
+        working-directory: ./
+        run: ./vendor/bin/phpunit --configuration phpunit-with-integration.xml --coverage-clover ./build/clover.xml
         continue-on-error: true
 
       - name: Upload coverage reports to Codecov
