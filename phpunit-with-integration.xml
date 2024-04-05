@@ -27,6 +27,7 @@
 		</include>
 		<exclude>
 			<directory suffix=".php">src/Client</directory>
+			<directory suffix=".php">src/Admin/Settings</directory>
 			<file>src/Uninstall.php</file>
 		</exclude>
 	</coverage>
