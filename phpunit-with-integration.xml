@@ -13,7 +13,7 @@
 		 failOnWarning="true"
 		 verbose="true">
 	<php>
-		<const name="DAAN_DOING_TESTS" value="true"/>
+		<const name="DOING_TESTS" value="true"/>
 	</php>
 	<testsuites>
 		<testsuite name="default">
