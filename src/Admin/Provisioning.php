@@ -154,7 +154,7 @@ class Provisioning {
 
 		if ( $response->valid() ) {
 			$goals = $response->getGoals();
-			$ids   = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
+			$ids   = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
 
 			foreach ( $goals as $goal ) {
 				$goal                  = $goal->getGoal();
@@ -172,6 +172,8 @@ class Provisioning {
 	 *
 	 * @param $old_settings
 	 * @param $settings
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_delete_goals( $old_settings, $settings ) {
 		$enhanced_measurements_old = array_filter( $old_settings[ 'enhanced_measurements' ] );
@@ -179,7 +181,7 @@ class Provisioning {
 		$disabled_settings         = array_diff( $enhanced_measurements_old, $enhanced_measurements );
 
 		if ( empty( $disabled_settings ) ) {
-			return; // @codeCoverageIgnore
+			return;
 		}
 
 		$goals = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
@@ -200,6 +202,8 @@ class Provisioning {
 	 * @param array $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_create_custom_properties( $old_settings, $settings ) {
 		$enhanced_measurements = $settings[ 'enhanced_measurements' ];

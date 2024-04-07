@@ -128,9 +128,7 @@ class Client {
 		$result      = (object) [];
 
 		try {
-			$result = $this->api_instance->plausibleWebPluginsAPIControllersSharedLinksCreate(
-				[ 'shared_link' => [ 'name' => 'WordPress - Shared Dashboard', 'password_protected' => false ] ]
-			);
+			$result = $this->bulk_create_shared_links();
 		} catch ( Exception $e ) {
 			$this->send_json_error( $e, __( 'Something went wrong while creating Shared Link: %s', 'plausible-analytics' ) );
 		}
@@ -145,10 +143,22 @@ class Client {
 	}
 
 	/**
+	 * @return SharedLink|UnauthorizedError|UnprocessableEntityError
+	 * @throws ApiException
+	 */
+	public function bulk_create_shared_links(): UnauthorizedError|UnprocessableEntityError|SharedLink {
+		return $this->api_instance->plausibleWebPluginsAPIControllersSharedLinksCreate(
+			[ 'shared_link' => [ 'name' => 'WordPress - Shared Dashboard', 'password_protected' => false ] ]
+		);
+	}
+
+	/**
 	 * @param Exception $e
 	 * @param string    $error_message The human-readable part of the error message, requires a %s at the end!
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function send_json_error( $e, $error_message ) {
 		if ( ! wp_doing_ajax() ) {
@@ -209,6 +219,8 @@ class Client {
 	 * Delete a Custom Event Goal by ID.
 	 *
 	 * @param int $id
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function delete_goal( $id ) {
 		try {
