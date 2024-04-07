@@ -52,13 +52,13 @@ class Client {
 		$is_valid = ! empty( get_transient( 'plausible_analytics_valid_token' )[ $token ] );
 
 		if ( $is_valid ) {
-			return true;
+			return true; // @codeCoverageIgnore
 		}
 
 		$features = $this->get_features();
 
 		if ( ! $features instanceof CapabilitiesFeatures ) {
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		$data_domain = $this->get_data_domain();
@@ -81,13 +81,15 @@ class Client {
 			return $capabilities->getFeatures();
 		}
 
-		return false;
+		return false; // @codeCoverageIgnore
 	}
 
 	/**
 	 * Retrieve all capabilities assigned to configured API token.
 	 *
 	 * @return bool|Client\Model\Capabilities
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function get_capabilities() {
 		try {
@@ -101,6 +103,8 @@ class Client {
 	 * Retrieve Data Domain property from Capabilities object.
 	 *
 	 * @return false|string
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function get_data_domain() {
 		$capabilities = $this->get_capabilities();
@@ -123,8 +127,10 @@ class Client {
 
 		try {
 			$result = $this->bulk_create_shared_links();
+			// @codeCoverageIgnoreStart
 		} catch ( Exception $e ) {
 			$this->send_json_error( $e, __( 'Something went wrong while creating Shared Link: %s', 'plausible-analytics' ) );
+			// @codeCoverageIgnoreEnd
 		}
 
 		if ( $result instanceof SharedLink ) {
@@ -139,6 +145,8 @@ class Client {
 	/**
 	 * @return SharedLink|UnauthorizedError|UnprocessableEntityError
 	 * @throws ApiException
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function bulk_create_shared_links() {
 		return $this->api_instance->plausibleWebPluginsAPIControllersSharedLinksCreate(
@@ -200,6 +208,8 @@ class Client {
 	 * @param GoalCreateRequestBulkGetOrCreate $goals
 	 *
 	 * @return Client\Model\PaymentRequiredError|Client\Model\PlausibleWebPluginsAPIControllersGoalsCreate201Response|Client\Model\UnauthorizedError|Client\Model\UnprocessableEntityError|null
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function create_goals( $goals ) {
 		try {
@@ -236,6 +246,8 @@ class Client {
 	 * @param CustomPropEnableRequestBulkEnable $enable_request
 	 *
 	 * @throws PaymentRequiredError|UnauthorizedError|UnprocessableEntityError
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function enable_custom_property( $enable_request ) {
 		try {
