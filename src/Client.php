@@ -146,7 +146,7 @@ class Client {
 	 * @return SharedLink|UnauthorizedError|UnprocessableEntityError
 	 * @throws ApiException
 	 */
-	public function bulk_create_shared_links(): UnauthorizedError|UnprocessableEntityError|SharedLink {
+	public function bulk_create_shared_links() {
 		return $this->api_instance->plausibleWebPluginsAPIControllersSharedLinksCreate(
 			[ 'shared_link' => [ 'name' => 'WordPress - Shared Dashboard', 'password_protected' => false ] ]
 		);
