@@ -39,15 +39,18 @@ class Provisioning {
 
 	/**
 	 * Build class.
+	 *
+	 * @codeCoverageIgnore
+	 * @throws ApiException
 	 */
 	public function __construct() {
 		/**
 		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
 		 */
 		if ( ! extension_loaded( 'curl' ) && ! ini_get( 'allow_url_fopen' ) ) {
-			add_action( 'init', [ $this, 'add_curl_error' ] ); // @codeCoverageIgnore
+			add_action( 'init', [ $this, 'add_curl_error' ] );
 
-			return; // @codeCoverageIgnore
+			return;
 		}
 
 		$this->client = new Client();
