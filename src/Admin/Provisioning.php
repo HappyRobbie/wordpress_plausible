@@ -40,10 +40,12 @@ class Provisioning {
 	/**
 	 * Build class.
 	 *
-	 * @codeCoverageIgnore
+	 * @param bool|Client $client Allows for mocking during CI.
+	 *
 	 * @throws ApiException
+	 * @codeCoverageIgnore
 	 */
-	public function __construct() {
+	public function __construct( $client = null ) {
 		/**
 		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
 		 */
@@ -53,7 +55,11 @@ class Provisioning {
 			return;
 		}
 
-		$this->client = new Client();
+		$this->client = $client;
+
+		if ( ! $this->client ) {
+			$this->client = new Client();
+		}
 
 		$this->init();
 	}
