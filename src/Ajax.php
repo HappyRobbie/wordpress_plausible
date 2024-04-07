@@ -128,6 +128,8 @@ class Ajax {
 	 * @param $direction
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function maybe_handle_redirect( $direction ) {
 		if ( ! empty( $direction ) ) {

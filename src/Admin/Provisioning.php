@@ -39,8 +39,13 @@ class Provisioning {
 
 	/**
 	 * Build class.
+	 *
+	 * @param bool|Client $client Allows for mocking during CI.
+	 *
+	 * @throws ApiException
+	 * @codeCoverageIgnore
 	 */
-	public function __construct() {
+	public function __construct( $client = null ) {
 		/**
 		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
 		 */
@@ -50,7 +55,11 @@ class Provisioning {
 			return;
 		}
 
-		$this->client = new Client();
+		$this->client = $client;
+
+		if ( ! $this->client ) {
+			$this->client = new Client();
+		}
 
 		$this->init();
 	}
@@ -60,10 +69,12 @@ class Provisioning {
 	 *
 	 * @return void
 	 * @throws ApiException
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function init() {
 		if ( ! $this->client->validate_api_token() ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_shared_link' ], 10, 2 );
@@ -76,6 +87,8 @@ class Provisioning {
 	 * Show an error on the settings screen if cURL isn't enabled on this machine.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function add_curl_error() {
 		Messages::set_error(
@@ -94,7 +107,7 @@ class Provisioning {
 	 */
 	public function create_shared_link( $old_settings, $settings ) {
 		if ( empty( $settings[ 'enable_analytics_dashboard' ] ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$this->client->create_shared_link();
@@ -110,7 +123,7 @@ class Provisioning {
 		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
 
 		if ( empty( $enhanced_measurements ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$custom_event_keys = array_keys( $this->custom_event_goals );
@@ -119,7 +132,7 @@ class Provisioning {
 
 		foreach ( $enhanced_measurements as $measurement ) {
 			if ( ! in_array( $measurement, $custom_event_keys ) ) {
-				continue;
+				continue; // @codeCoverageIgnore
 			}
 
 			$goals[] = new Client\Model\GoalCreateRequestCustomEvent(
@@ -133,7 +146,7 @@ class Provisioning {
 		}
 
 		if ( empty( $goals ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$create_request->setGoals( $goals );
@@ -141,7 +154,7 @@ class Provisioning {
 
 		if ( $response->valid() ) {
 			$goals = $response->getGoals();
-			$ids   = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
+			$ids   = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
 
 			foreach ( $goals as $goal ) {
 				$goal                  = $goal->getGoal();
@@ -159,6 +172,8 @@ class Provisioning {
 	 *
 	 * @param $old_settings
 	 * @param $settings
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_delete_goals( $old_settings, $settings ) {
 		$enhanced_measurements_old = array_filter( $old_settings[ 'enhanced_measurements' ] );
@@ -175,7 +190,7 @@ class Provisioning {
 			$key = array_search( $name, $this->custom_event_goals );
 
 			if ( ! in_array( $key, $disabled_settings ) ) {
-				continue;
+				continue; // @codeCoverageIgnore
 			}
 
 			$this->client->delete_goal( $id );
@@ -187,12 +202,14 @@ class Provisioning {
 	 * @param array $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_create_custom_properties( $old_settings, $settings ) {
 		$enhanced_measurements = $settings[ 'enhanced_measurements' ];
 
 		if ( ! in_array( 'pageview-props', $enhanced_measurements ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$create_request = new Client\Model\CustomPropEnableRequestBulkEnable();

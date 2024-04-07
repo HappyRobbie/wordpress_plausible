@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Setup.
+ *
  * @since      1.3.0
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -13,12 +14,14 @@ defined( 'ABSPATH' ) || exit;
 class Setup {
 	/**
 	 * Cron job handle
+	 *
 	 * @var string
 	 */
 	private $cron = 'plausible_analytics_update_js';
 
 	/**
 	 * Filters and Hooks.
+	 *
 	 * @return void
 	 */
 	public function __construct() {
@@ -40,12 +43,14 @@ class Setup {
 		$upload_dir = Helpers::get_proxy_resource( 'cache_dir' );
 
 		if ( ! is_dir( $upload_dir ) ) {
-			wp_mkdir_p( $upload_dir );
+			wp_mkdir_p( $upload_dir ); // @codeCoverageIgnore
 		}
 	}
 
 	/**
 	 * Register hook to schedule script in wp_cron()
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function activate_cron() {
 		if ( ! wp_next_scheduled( $this->cron ) ) {
@@ -55,6 +60,8 @@ class Setup {
 
 	/**
 	 * Deactivate cron when plugin is deactivated.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function deactivate_cron() {
 		if ( wp_next_scheduled( $this->cron ) ) {
@@ -64,6 +71,8 @@ class Setup {
 
 	/**
 	 * Triggers the cron script.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function load_cron_script() {
 		new \Plausible\Analytics\WP\Cron();

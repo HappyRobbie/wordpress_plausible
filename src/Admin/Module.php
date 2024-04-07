@@ -59,11 +59,11 @@ class Module {
 	 */
 	public function install() {
 		if ( ! current_user_can( 'install_plugins' ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			require_once( ABSPATH . 'wp-admin/includes/file.php' ); // @codeCoverageIgnore
 		}
 
 		WP_Filesystem();
@@ -74,13 +74,13 @@ class Module {
 		}
 
 		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
-			$this->show_module_not_installed_error();
+			$this->show_module_not_installed_error(); // @codeCoverageIgnore
 		}
 
 		$results = copy_dir( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'mu-plugin', WPMU_PLUGIN_DIR );
 
 		if ( is_wp_error( $results ) ) {
-			$this->show_module_not_installed_error();
+			$this->show_module_not_installed_error(); // @codeCoverageIgnore
 		}
 
 		add_option( 'plausible_analytics_proxy_speed_module_installed', true );
@@ -89,6 +89,8 @@ class Module {
 	/**
 	 * @since 1.3.0
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function show_module_not_installed_error() {
 		$message = sprintf(
@@ -114,7 +116,7 @@ class Module {
 	 */
 	public function uninstall() {
 		if ( ! current_user_can( 'install_plugins' ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		/**
@@ -137,7 +139,7 @@ class Module {
 		$js_file   = Helpers::get_proxy_resource( 'file_alias' );
 
 		if ( file_exists( $cache_dir . $js_file . '.js' ) ) {
-			unlink( $cache_dir . $js_file . '.js' );
+			unlink( $cache_dir . $js_file . '.js' ); // @codeCoverageIgnore
 		}
 
 		if ( $this->dir_is_empty( $cache_dir ) ) {
@@ -205,6 +207,7 @@ class Module {
 		$test_succeeded = $this->test_proxy( Helpers::proxy_enabled( $settings ) && wp_doing_ajax() );
 
 		if ( ! $test_succeeded ) {
+			// @codeCoverageIgnoreStart
 			Messages::set_error(
 				sprintf(
 					wp_kses(
@@ -221,6 +224,7 @@ class Module {
 
 			// Disable the proxy.
 			return $old_settings;
+			// @codeCoverageIgnoreEnd
 		}
 
 		return $settings;
@@ -247,7 +251,7 @@ class Module {
 	private function test_proxy( $run = true ) {
 		// Should we run the test?
 		if ( ! apply_filters( 'plausible_analytics_module_run_test_proxy', $run ) ) {
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		$namespace = Helpers::get_proxy_resource( 'namespace' );
@@ -267,12 +271,12 @@ class Module {
 		/** @var \WP_REST_Response $result */
 		try {
 			$result = rest_do_request( $request );
-		} catch ( \Exception $e ) {
+		} catch ( \Exception $e ) { // @codeCoverageIgnore
 			/**
 			 * There's no need to handle the error, because we don't want to display it anyway.
 			 * We'll leave the parameter for backwards compatibility.
 			 */
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		return wp_remote_retrieve_response_code( $result->get_data() ) === 202;

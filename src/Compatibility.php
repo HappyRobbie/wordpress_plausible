@@ -1,6 +1,7 @@
 <?php
 /**
  * Plausible Analytics | Filters.
+ *
  * @since      1.2.5
  * @package    WordPress
  * @subpackage Plausible Analytics
@@ -8,12 +9,15 @@
 
 namespace Plausible\Analytics\WP;
 
+use Exception;
+
 defined( 'ABSPATH' ) || exit;
 
 class Compatibility {
 	/**
 	 * A list of filters and actions to prevent our script from being manipulated by other plugins, known to cause issues.
 	 * Our script is already <1KB, so there's no need to minify, combine or optimize it in any other way.
+	 *
 	 * @return void
 	 */
 	public function __construct() {
@@ -50,6 +54,10 @@ class Compatibility {
 			add_filter( 'litespeed_optm_js_defer_exc', [ $this, 'exclude_plausible_inline_js' ] );
 			add_filter( 'litespeed_optm_gm_js_exc', [ $this, 'exclude_plausible_inline_js' ] );
 		}
+
+		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+			add_filter( 'rest_url', [ $this, 'wpml_compatibility' ], 10, 1 );
+		}
 	}
 
 	/**
@@ -67,6 +75,7 @@ class Compatibility {
 
 	/**
 	 * Dear WP Rocket/SG Optimizer/Etc., don't minify/combine our inline JS, please.
+	 *
 	 * @filter rocket_excluded_inline_js_content
 	 * @since  1.2.5
 	 *
@@ -84,6 +93,7 @@ class Compatibility {
 
 	/**
 	 * Dear WP Rocket/SG Optimizer/Etc., don't minify/combine/delay our external JS, please.
+	 *
 	 * @filter rocket_exclude_js
 	 * @filter rocket_minify_excluded_external_js
 	 * @since  1.2.5
@@ -100,6 +110,7 @@ class Compatibility {
 
 	/**
 	 * Dear WP Rocket/SG Optimizer/Etc., don't minify/combine/delay our external JS, please.
+	 *
 	 * @filter rocket_exclude_js
 	 * @filter rocket_minify_excluded_external_js
 	 * @since  1.2.5
@@ -112,5 +123,24 @@ class Compatibility {
 		$excluded_handles[] = 'plausible-analytics';
 
 		return $excluded_handles;
+	}
+
+	/**
+	 * WPML overrides the REST API URL to include the language 'subdirectory', which leads to 404s.
+	 * This forces it back to default behavior.
+	 *
+	 * @param mixed $url
+	 *
+	 * @return string|void
+	 * @throws Exception
+	 */
+	public function wpml_compatibility( $url ) {
+		$rest_endpoint = Helpers::get_rest_endpoint( false );
+
+		if ( strpos( $url, $rest_endpoint ) !== false ) {
+			return get_option( 'home' ) . $rest_endpoint;
+		}
+
+		return $url;
 	}
 }

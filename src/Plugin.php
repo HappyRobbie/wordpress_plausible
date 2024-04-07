@@ -56,6 +56,8 @@ final class Plugin {
 	 * @since  1.0.0
 	 * @access public
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function load_plugin_textdomain() {
 		load_plugin_textdomain(

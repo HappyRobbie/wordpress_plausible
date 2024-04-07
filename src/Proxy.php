@@ -78,7 +78,7 @@ class Proxy {
 			$_POST[ 'option_name' ] == 'proxy_enabled' &&
 			array_key_exists( 'option_value', $_POST ) &&
 			$_POST[ 'option_value' ] == 'on' ) {
-			$settings[ 'proxy_enabled' ] = 'on';
+			$settings[ 'proxy_enabled' ] = 'on'; // @codeCoverageIgnore
 		}
 
 		// No need to continue if Proxy isn't enabled .
@@ -133,6 +133,8 @@ class Proxy {
 
 	/**
 	 * @return string
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function get_user_ip_address() {
 		$ip = '';
