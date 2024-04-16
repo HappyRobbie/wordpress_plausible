@@ -14,8 +14,6 @@ use Plausible\Analytics\WP\Admin\Settings\Hooks;
 use Plausible\Analytics\WP\Admin\Settings\Page;
 use Plausible\Analytics\WP\Client\ApiException;
 
-defined( 'ABSPATH' ) || exit;
-
 class Ajax {
 	/**
 	 * Build class.

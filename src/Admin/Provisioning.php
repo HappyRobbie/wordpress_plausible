@@ -12,8 +12,6 @@ namespace Plausible\Analytics\WP\Admin;
 use Plausible\Analytics\WP\Client;
 use Plausible\Analytics\WP\Client\ApiException;
 
-defined( 'ABSPATH' ) || exit;
-
 class Provisioning {
 	/**
 	 * @var Client $client

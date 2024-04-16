@@ -13,8 +13,6 @@ namespace Plausible\Analytics\WP\Admin\Settings;
 
 use Plausible\Analytics\WP\Helpers;
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * @codeCoverageIgnore
  */

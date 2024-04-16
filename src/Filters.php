@@ -12,8 +12,6 @@ namespace Plausible\Analytics\WP;
 use WP_Term;
 use Exception;
 
-defined( 'ABSPATH' ) || exit;
-
 class Filters {
 	/**
 	 * Constructor.

@@ -9,8 +9,6 @@
 
 namespace Plausible\Analytics\WP\Admin;
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * This class provides an alternative to the JS/Client approach to display error/notice messages in the Admin interface.
  */

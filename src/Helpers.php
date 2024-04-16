@@ -12,8 +12,6 @@ namespace Plausible\Analytics\WP;
 use Exception;
 use WpOrg\Requests\Exception\InvalidArgument;
 
-defined( 'ABSPATH' ) || exit;
-
 class Helpers {
 	/**
 	 * Get Analytics URL.

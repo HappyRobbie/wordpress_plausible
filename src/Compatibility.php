@@ -11,8 +11,6 @@ namespace Plausible\Analytics\WP;
 
 use Exception;
 
-defined( 'ABSPATH' ) || exit;
-
 class Compatibility {
 	/**
 	 * A list of filters and actions to prevent our script from being manipulated by other plugins, known to cause issues.
