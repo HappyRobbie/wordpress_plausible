@@ -9,8 +9,6 @@
 
 namespace Plausible\Analytics\WP;
 
-defined( 'ABSPATH' ) || exit;
-
 class Setup {
 	/**
 	 * Cron job handle

@@ -2,8 +2,6 @@
 
 namespace Plausible\Analytics\WP;
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Loads and registers plugin functionality through WordPress hooks.
  *

@@ -14,8 +14,6 @@ namespace Plausible\Analytics\WP;
 
 use Exception;
 
-defined( 'ABSPATH' ) || exit;
-
 class Proxy {
 	/**
 	 * Proxy IP Headers used to detect the visitors IP prior to sending the data to Plausible's Measurement Protocol.

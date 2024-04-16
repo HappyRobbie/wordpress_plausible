@@ -9,8 +9,6 @@
 
 namespace Plausible\Analytics\WP;
 
-defined( 'ABSPATH' ) || exit;
-
 class Actions {
 	/**
 	 * Constructor.

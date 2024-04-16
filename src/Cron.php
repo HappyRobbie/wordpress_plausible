@@ -12,8 +12,6 @@ namespace Plausible\Analytics\WP;
 use WpOrg\Requests\Exception\InvalidArgument;
 use Exception;
 
-defined( 'ABSPATH' ) || exit;
-
 class Cron {
 	/**
 	 * Build class

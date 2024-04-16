@@ -11,8 +11,6 @@ namespace Plausible\Analytics\WP\Admin;
 
 use Plausible\Analytics\WP\Helpers;
 
-defined( 'ABSPATH' ) || exit;
-
 class Actions {
 	/**
 	 * Constructor.

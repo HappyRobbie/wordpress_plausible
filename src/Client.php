@@ -17,8 +17,6 @@ use Plausible\Analytics\WP\Client\Model\SharedLink;
 use Plausible\Analytics\WP\Client\Model\UnauthorizedError;
 use Plausible\Analytics\WP\Client\Model\UnprocessableEntityError;
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * This class acts as middleware between our OpenAPI generated API client and our WP plugin, and takes care of setting
  * the required credentials, so we can use the API in a unified manner.

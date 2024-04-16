@@ -13,8 +13,6 @@ namespace Plausible\Analytics\WP\Admin\Settings;
 use Exception;
 use Plausible\Analytics\WP\Helpers;
 
-defined( 'ABSPATH' ) || exit;
-
 class Page extends API {
 	const OPTION_NOT_AVAILABLE_IN_CE_HOOK           = [
 		[

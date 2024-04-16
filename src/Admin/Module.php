@@ -12,8 +12,6 @@ namespace Plausible\Analytics\WP\Admin;
 use Exception;
 use Plausible\Analytics\WP\Helpers;
 
-defined( 'ABSPATH' ) || exit;
-
 class Module {
 	/**
 	 * Build properties.
