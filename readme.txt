@@ -33,7 +33,7 @@ Here's what makes Plausible a great Google Analytics alternative and why over 12
 
 ### Smooth transition from Google Analytics
 
-Plausible features a realtime dashboard, entry pages report and integration with Search Console. You can track your paid campaigns and conversions. You can invite team members. You can even [import your historical stats from Universal Analytics](https://plausible.io/docs/google-analytics-import). Learn how to get the most out of [your Plausible experience](https://plausible.io/docs/your-plausible-experience) and join thousands who have already migrated from Google Analytics.
+Plausible features a realtime dashboard, entry pages report and integration with Search Console. You can track your paid campaigns and conversions. You can invite team members. You can even [import your historical stats from Google Analytics](https://plausible.io/docs/google-analytics-import). Learn how to get the most out of [your Plausible experience](https://plausible.io/docs/your-plausible-experience) and join thousands who have already migrated from Google Analytics.
 
 ### Simple analytics at a glance
 
@@ -71,7 +71,7 @@ Plausible is open source analytics. Our source code is available and accessible 
 * Enable automated tracking of post authors and post categories for better content analysis
 * Custom events and custom dimensions can be setup using CSS class names directly in the WordPress editor
 * Integrate with Google Search Console so you can see search queries people use to find your site in Google's search results
-* Import your historical Google Universal Analytics stats
+* Import your historical Google Analytics stats
 * Keep an eye on your traffic with weekly and/or monthly email and Slack reports
 * Get traffic spike notifications via email or Slack so you don't miss being on the Hacker News
 * Tag your paid ads, emails and social media posts with UTM tags and analyze your ecommerce and marketing campaigns from click to conversion using marketing funnels 
