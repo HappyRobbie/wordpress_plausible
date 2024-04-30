@@ -584,6 +584,10 @@ class API {
 				<?php $is_list = count( $fields ) > 1; ?>
 				<?php if ( $is_list ) {
 					foreach ( $fields as $field ) {
+						if ( $field[ 'type' ] === 'hook' ) {
+							continue;
+						}
+
 						if ( $field[ 'type' ] !== 'checkbox' ) {
 							$is_list = false;
 
