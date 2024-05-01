@@ -51,7 +51,7 @@ class Actions {
 			true
 		);
 
-		wp_add_inline_script( 'plausible-admin', 'var plausible_analytics_hosted_domain = "' . Helpers::get_hosted_domain() . '";' );
+		wp_add_inline_script( 'plausible-admin', 'var plausible_analytics_hosted_domain = "' . Helpers::get_hosted_domain_url() . '";' );
 	}
 
 	/**

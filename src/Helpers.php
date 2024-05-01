@@ -33,7 +33,7 @@ class Helpers {
 			return esc_url( self::get_proxy_resource( 'cache_url' ) . $file_name . '.js' );
 		}
 
-		return esc_url( self::get_hosted_domain() . "/js/$file_name.js" );
+		return esc_url( self::get_hosted_domain_url() . "/js/$file_name.js" );
 	}
 
 	/**
@@ -170,25 +170,25 @@ class Helpers {
 	}
 
 	/**
-	 * Returns the domain where Plausible Analytics is hosted: self-hosted or cloud.
+	 * Returns the URL of the domain where Plausible Analytics is hosted: self-hosted or cloud.
 	 *
 	 * @return string
 	 */
-	public static function get_hosted_domain() {
+	public static function get_hosted_domain_url() {
 		$settings = self::get_settings();
 
 		if ( defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ) {
-			return 'https://' . PLAUSIBLE_SELF_HOSTED_DOMAIN;
+			return esc_url( 'https://' . PLAUSIBLE_SELF_HOSTED_DOMAIN );
 		}
 
 		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
 			/**
 			 * Until proven otherwise, let's just assume people are all on SSL.
 			 */
-			return 'https://' . $settings[ 'self_hosted_domain' ];
+			return esc_url( 'https://' . $settings[ 'self_hosted_domain' ] );
 		}
 
-		return 'https://plausible.io';
+		return esc_url( 'https://plausible.io' );
 	}
 
 	/**
@@ -280,7 +280,7 @@ class Helpers {
 			return self::get_rest_endpoint() . $append;
 		}
 
-		return esc_url( self::get_hosted_domain() . '/api/event' );
+		return esc_url( self::get_hosted_domain_url() . '/api/event' );
 	}
 
 	/**

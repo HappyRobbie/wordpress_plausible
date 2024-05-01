@@ -85,7 +85,7 @@ class Page extends API {
 							),
 							'post'
 						),
-						Helpers::get_hosted_domain() . '/sites'
+						Helpers::get_hosted_domain_url() . '/sites'
 					),
 					'fields' => [
 						[
@@ -368,7 +368,7 @@ class Page extends API {
 							'value'       => $settings[ 'self_hosted_shared_link' ],
 							'placeholder' => sprintf(
 								wp_kses( __( 'E.g. %s/share/%s?auth=XXXXXXXXXXXX', 'plausible-analytics' ), 'post' ),
-								Helpers::get_hosted_domain(),
+								Helpers::get_hosted_domain_url(),
 								Helpers::get_domain()
 							),
 							'disabled'    => Helpers::proxy_enabled(),
@@ -630,12 +630,14 @@ class Page extends API {
 			if ( $shared_link && $page_url ) {
 				$shared_link .= "&page={$page_url}";
 			}
+
+			$hosted_domain = Helpers::get_hosted_domain_url();
 			?>
 			<div id="plausible-analytics-stats">
 				<iframe plausible-embed=""
 						src="<?php echo "{$shared_link}&embed=true&theme=light&background=transparent"; ?>"
 						scrolling="no" loading="lazy" style="border: 0; width: 100%; height: 1750px; "></iframe>
-				<script async src="https://plausible.io/js/embed.host.js"></script>
+				<script async src="<?php echo $hosted_domain; ?>/js/embed.host.js"></script>
 				<script>
 					document.addEventListener('DOMContentLoaded', () => {
 						let iframe = '';
