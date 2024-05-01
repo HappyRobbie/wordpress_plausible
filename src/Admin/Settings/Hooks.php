@@ -75,7 +75,7 @@ class Hooks extends API {
 
 		<?php else: ?>
 			<?php
-			$url = sprintf( 'https://plausible.io/%s/settings/integrations?new_token=Wordpress', Helpers::get_domain() );
+			$url = sprintf( '%s/%s/settings/integrations?new_token=Wordpress', Helpers::get_hosted_domain(), Helpers::get_domain() );
 			?>
 			<a href="<?php esc_attr_e( $url, 'plausible-analytics' ); ?>" target="_blank" class="plausible-analytics-btn">
 				<?php esc_html_e( 'Connect to Plausible', 'plausible-analytics' ); ?>

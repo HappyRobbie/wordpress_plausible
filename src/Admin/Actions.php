@@ -50,6 +50,8 @@ class Actions {
 			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-admin.js' ),
 			true
 		);
+
+		wp_add_inline_script( 'plausible-admin', 'var plausible_analytics_hosted_domain = "' . Helpers::get_hosted_domain() . '";' );
 	}
 
 	/**
@@ -71,7 +73,7 @@ class Actions {
 		$wizard_done = get_option( 'plausible_analytics_wizard_done', false );
 
 		if ( ! $wizard_done ) {
-			$url = admin_url( 'options-general.php?page=plausible_analytics#welcome_slide' );
+			$url = admin_url( 'options - general . php ? page = plausible_analytics#welcome_slide' );
 
 			wp_redirect( $url );
 
