@@ -73,6 +73,10 @@ class Upgrades {
 		}
 		// @codeCoverageIgnoreEnd
 
+		if ( version_compare( $plausible_analytics_version, '2.1.0', '<' ) ) {
+			$this->upgrade_to_210();
+		}
+
 		// Add required upgrade routines for future versions here.
 	}
 
@@ -247,5 +251,22 @@ class Upgrades {
 		update_option( 'plausible_analytics_settings', $settings );
 
 		update_option( 'plausible_analytics_version', '2.0.3' );
+	}
+
+	/**
+	 * v2.0.8 and older contained a bug that
+	 *
+	 * @return void
+	 */
+	public function upgrade_to_210() {
+		$settings = Helpers::get_settings();
+
+		if ( ! is_array( $settings[ 'enhanced_measurements' ] ) ) {
+			$settings[ 'enhanced_measurements' ] = [];
+		}
+
+		update_option( 'plausible_analytics_settings', $settings );
+
+		update_option( 'plausible_analytics_version', '2.1.0' );
 	}
 }
