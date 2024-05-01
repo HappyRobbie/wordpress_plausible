@@ -69,9 +69,7 @@ class Page extends API {
 	public function __construct() {
 		$this->init();
 
-		$settings           = Helpers::get_settings();
-		$domain             = Helpers::get_domain();
-		$self_hosted_domain = defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ? PLAUSIBLE_SELF_HOSTED_DOMAIN : $settings[ 'self_hosted_domain' ];
+		$settings = Helpers::get_settings();
 
 		$this->fields = [
 			'general'     => [
@@ -87,14 +85,14 @@ class Page extends API {
 							),
 							'post'
 						),
-						'https://plausible.io/sites'
+						Helpers::get_hosted_domain_url() . '/sites'
 					),
 					'fields' => [
 						[
 							'label' => esc_html__( 'Domain name', 'plausible-analytics' ),
 							'slug'  => 'domain_name',
 							'type'  => 'text',
-							'value' => $domain,
+							'value' => Helpers::get_domain(),
 						],
 						[
 							'label' => esc_html__( 'API token', 'plausible-analytics' ),
@@ -333,7 +331,8 @@ class Page extends API {
 							'label'       => esc_html__( 'Domain name', 'plausible-analytics' ),
 							'slug'        => 'self_hosted_domain',
 							'type'        => 'text',
-							'value'       => $self_hosted_domain,
+							'value'       => defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ? PLAUSIBLE_SELF_HOSTED_DOMAIN :
+								$settings[ 'self_hosted_domain' ],
 							'placeholder' => 'e.g. ' . Helpers::get_domain(),
 							'disabled'    => Helpers::proxy_enabled(),
 						],
@@ -368,8 +367,9 @@ class Page extends API {
 							'type'        => 'text',
 							'value'       => $settings[ 'self_hosted_shared_link' ],
 							'placeholder' => sprintf(
-								wp_kses( __( 'E.g. https://plausible.io/share/%s?auth=XXXXXXXXXXXX', 'plausible-analytics' ), 'post' ),
-								$domain
+								wp_kses( __( 'E.g. %s/share/%s?auth=XXXXXXXXXXXX', 'plausible-analytics' ), 'post' ),
+								Helpers::get_hosted_domain_url(),
+								Helpers::get_domain()
 							),
 							'disabled'    => Helpers::proxy_enabled(),
 						],
@@ -613,7 +613,7 @@ class Page extends API {
 		/**
 		 * Prior to this version, the default value would contain an example "auth" key, i.e. XXXXXXXXX.
 		 * When this option was saved to the database, underlying code would fail, throwing a CORS related error in browsers.
-		 * Now, we explicitly check for the existence of this example "auth" key, and display a human readable error message to
+		 * Now, we explicitly check for the existence of this example "auth" key, and display a human-readable error message to
 		 * those who haven't properly set it up.
 		 *
 		 * @since v1.2.5
@@ -630,12 +630,14 @@ class Page extends API {
 			if ( $shared_link && $page_url ) {
 				$shared_link .= "&page={$page_url}";
 			}
+
+			$hosted_domain = Helpers::get_hosted_domain_url();
 			?>
 			<div id="plausible-analytics-stats">
 				<iframe plausible-embed=""
 						src="<?php echo "{$shared_link}&embed=true&theme=light&background=transparent"; ?>"
 						scrolling="no" loading="lazy" style="border: 0; width: 100%; height: 1750px; "></iframe>
-				<script async src="https://plausible.io/js/embed.host.js"></script>
+				<script async src="<?php echo $hosted_domain; ?>/js/embed.host.js"></script>
 				<script>
 					document.addEventListener('DOMContentLoaded', () => {
 						let iframe = '';

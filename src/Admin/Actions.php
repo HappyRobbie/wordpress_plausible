@@ -50,6 +50,8 @@ class Actions {
 			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-admin.js' ),
 			true
 		);
+
+		wp_add_inline_script( 'plausible-admin', 'var plausible_analytics_hosted_domain = "' . Helpers::get_hosted_domain_url() . '";' );
 	}
 
 	/**

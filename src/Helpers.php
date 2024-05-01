@@ -24,10 +24,7 @@ class Helpers {
 	 * @throws Exception
 	 */
 	public static function get_js_url( $local = false ) {
-		$settings       = self::get_settings();
-		$file_name      = self::get_filename( $local );
-		$default_domain = 'plausible.io';
-		$domain         = $default_domain;
+		$file_name = self::get_filename( $local );
 
 		/**
 		 * If Avoid ad blockers is enabled, return URL to local file.
@@ -36,21 +33,36 @@ class Helpers {
 			return esc_url( self::get_proxy_resource( 'cache_url' ) . $file_name . '.js' );
 		}
 
-		// Allows for hard-coding the self-hosted domain.
-		if ( defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ) {
-			$domain = PLAUSIBLE_SELF_HOSTED_DOMAIN; // @codeCoverageIgnore
+		return esc_url( self::get_hosted_domain_url() . "/js/$file_name.js" );
+	}
+
+	/**
+	 * Get filename (without file extension)
+	 *
+	 * @since 1.3.0
+	 * @return string
+	 * @throws Exception
+	 */
+	public static function get_filename( $local = false ) {
+		$settings  = self::get_settings();
+		$file_name = 'plausible';
+
+		if ( $local && self::proxy_enabled() ) {
+			return self::get_proxy_resource( 'file_alias' );
 		}
 
-		/**
-		 * Set $domain to self_hosted_domain if it exists.
-		 */
-		if ( ! empty( $settings[ 'self_hosted_domain' ] ) && $domain === $default_domain ) {
-			$domain = $settings[ 'self_hosted_domain' ];
+		foreach ( [ 'outbound-links', 'file-downloads', 'tagged-events', 'revenue', 'pageview-props', 'compat', 'hash' ] as $extension ) {
+			if ( is_array( $settings[ 'enhanced_measurements' ] ) && in_array( $extension, $settings[ 'enhanced_measurements' ], true ) ) {
+				$file_name .= '.' . $extension;
+			}
 		}
 
-		$url = "https://{$domain}/js/{$file_name}.js";
+		// Load exclusions.js if any excluded pages are set.
+		if ( ! empty( $settings[ 'excluded_pages' ] ) ) {
+			$file_name .= '.' . 'exclusions';
+		}
 
-		return esc_url( $url );
+		return $file_name;
 	}
 
 	/**
@@ -79,34 +91,6 @@ class Helpers {
 		$settings = get_option( 'plausible_analytics_settings', [] );
 
 		return apply_filters( 'plausible_analytics_settings', wp_parse_args( $settings, $defaults ) );
-	}
-
-	/**
-	 * Get filename (without file extension)
-	 *
-	 * @since 1.3.0
-	 * @return string
-	 */
-	public static function get_filename( $local = false ) {
-		$settings  = self::get_settings();
-		$file_name = 'plausible';
-
-		if ( $local && self::proxy_enabled() ) {
-			return self::get_proxy_resource( 'file_alias' );
-		}
-
-		foreach ( [ 'outbound-links', 'file-downloads', 'tagged-events', 'revenue', 'pageview-props', 'compat', 'hash' ] as $extension ) {
-			if ( is_array( $settings[ 'enhanced_measurements' ] ) && in_array( $extension, $settings[ 'enhanced_measurements' ], true ) ) {
-				$file_name .= '.' . $extension;
-			}
-		}
-
-		// Load exclusions.js if any excluded pages are set.
-		if ( ! empty( $settings[ 'excluded_pages' ] ) ) {
-			$file_name .= '.' . 'exclusions';
-		}
-
-		return $file_name;
 	}
 
 	/**
@@ -183,6 +167,28 @@ class Helpers {
 		}
 
 		return $resources;
+	}
+
+	/**
+	 * Returns the URL of the domain where Plausible Analytics is hosted: self-hosted or cloud.
+	 *
+	 * @return string
+	 */
+	public static function get_hosted_domain_url() {
+		$settings = self::get_settings();
+
+		if ( defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ) {
+			return esc_url( 'https://' . PLAUSIBLE_SELF_HOSTED_DOMAIN ); // @codeCoverageIgnore
+		}
+
+		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
+			/**
+			 * Until proven otherwise, let's just assume people are all on SSL.
+			 */
+			return esc_url( 'https://' . $settings[ 'self_hosted_domain' ] );
+		}
+
+		return esc_url( 'https://plausible.io' );
 	}
 
 	/**
@@ -267,9 +273,6 @@ class Helpers {
 	 * @return string
 	 */
 	public static function get_data_api_url() {
-		$settings = self::get_settings();
-		$url      = 'https://plausible.io/api/event';
-
 		if ( self::proxy_enabled() ) {
 			// This'll make sure the API endpoint is properly registered when we're testing.
 			$append = isset( $_GET[ 'plausible_proxy' ] ) ? '?plausible_proxy=1' : '';
@@ -277,13 +280,7 @@ class Helpers {
 			return self::get_rest_endpoint() . $append;
 		}
 
-		// Triggered when self-hosted analytics is enabled.
-		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
-			$default_domain = $settings[ 'self_hosted_domain' ];
-			$url            = "https://{$default_domain}/api/event";
-		}
-
-		return esc_url( $url );
+		return esc_url( self::get_hosted_domain_url() . '/api/event' );
 	}
 
 	/**

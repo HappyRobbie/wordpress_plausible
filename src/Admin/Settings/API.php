@@ -10,6 +10,7 @@
 
 namespace Plausible\Analytics\WP\Admin\Settings;
 
+use Plausible\Analytics\WP\Ajax;
 use Plausible\Analytics\WP\Helpers;
 
 /**
@@ -581,23 +582,21 @@ class API {
 				</header>
 			<?php endif; ?>
 			<?php if ( ! empty( $fields ) ): ?>
-				<?php $is_list = count( $fields ) > 1; ?>
-				<?php if ( $is_list ) {
-					foreach ( $fields as $field ) {
-						if ( $field[ 'type' ] === 'hook' ) {
-							continue;
-						}
-
-						if ( $field[ 'type' ] !== 'checkbox' ) {
-							$is_list = false;
-
-							break;
-						}
+				<?php
+				/**
+				 * if $fields contains more than one checkbox field type, this is a list, which is treated different in @see Ajax::toggle_option()
+				 */
+				$is_list = array_filter(
+					$fields,
+					function ( $field ) {
+						return $field[ 'type' ] === 'checkbox';
 					}
+				);
+
+				foreach ( $fields as $field ) {
+					echo call_user_func( [ $this, "render_{$field['type']}_field" ], $field, count( $is_list ) > 1 );
 				}
-				foreach ( $fields as $field ): ?>
-					<?php echo call_user_func( [ $this, "render_{$field['type']}_field" ], $field, $is_list ); ?>
-				<?php endforeach; ?>
+				?>
 			<?php endif; ?>
 		</div>
 		<?php
