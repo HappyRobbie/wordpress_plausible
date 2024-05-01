@@ -178,7 +178,7 @@ class Helpers {
 		$settings = self::get_settings();
 
 		if ( defined( 'PLAUSIBLE_SELF_HOSTED_DOMAIN' ) ) {
-			return esc_url( 'https://' . PLAUSIBLE_SELF_HOSTED_DOMAIN );
+			return esc_url( 'https://' . PLAUSIBLE_SELF_HOSTED_DOMAIN ); // @codeCoverageIgnore
 		}
 
 		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
