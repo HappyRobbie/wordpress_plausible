@@ -95,7 +95,11 @@ class Page extends API {
 							'value' => Helpers::get_domain(),
 						],
 						[
-							'label' => esc_html__( 'Plugin Token', 'plausible-analytics' ),
+							'label' => esc_html__( 'Plugin Token', 'plausible-analytics' ) .
+								' - ' .
+								'<a class="hover:cursor-pointer underline plausible-create-api-token">' .
+								__( 'Create Token', 'plausible-analytics' ) .
+								'</a>',
 							'slug'  => 'api_token',
 							'type'  => 'text',
 							'value' => $settings[ 'api_token' ],
