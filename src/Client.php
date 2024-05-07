@@ -40,7 +40,7 @@ class Client {
 	}
 
 	/**
-	 * Validates the API token (password) set in the current instance and caches the state to a transient valid for 1 day.
+	 * Validates the Plugin Token (password) set in the current instance and caches the state to a transient valid for 1 day.
 	 *
 	 * @return bool
 	 * @throws ApiException
@@ -83,7 +83,7 @@ class Client {
 	}
 
 	/**
-	 * Retrieve all capabilities assigned to configured API token.
+	 * Retrieve all capabilities assigned to configured Plugin Token.
 	 *
 	 * @return bool|Client\Model\Capabilities
 	 *

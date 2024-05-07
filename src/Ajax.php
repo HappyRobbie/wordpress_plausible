@@ -284,7 +284,7 @@ class Ajax {
 			// Clean spaces
 			$settings[ $option->name ] = trim( $option->value );
 
-			// Validate API token, if this is the API token field.
+			// Validate Plugin Token, if this is the Plugin Token field.
 			if ( $option->name === 'api_token' ) {
 				$this->validate_api_token( $option->value );
 			}
@@ -298,7 +298,7 @@ class Ajax {
 	}
 
 	/**
-	 * Validate the entered API token, before storing it to the DB. wp_send_json_error() ensures that code execution stops.
+	 * Validate the entered Plugin Token, before storing it to the DB. wp_send_json_error() ensures that code execution stops.
 	 *
 	 * @param string $token
 	 *
@@ -311,7 +311,7 @@ class Ajax {
 		if ( ! $client->validate_api_token() ) {
 			Messages::set_error(
 				__(
-					'Oops! The API token you used is invalid. Please <a class="plausible-create-api-token hover:cursor-pointer underline">click here</a> to generate a new token.',
+					'Oops! The Plugin Token you used is invalid. Please <a class="plausible-create-api-token hover:cursor-pointer underline">click here</a> to generate a new token.',
 					'plausible-analytics'
 				)
 			);

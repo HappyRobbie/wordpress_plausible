@@ -108,7 +108,7 @@ class Hooks extends API {
 	}
 
 	/**
-	 * Show notice when API token notice is disabled.
+	 * Show notice when Plugin Token notice is disabled.
 	 *
 	 * @output HTML
 	 */
@@ -162,7 +162,7 @@ class Hooks extends API {
 	}
 
 	/**
-	 * Display missing API token warning.
+	 * Display missing Plugin Token warning.
 	 *
 	 * @output HTML
 	 */
@@ -170,7 +170,7 @@ class Hooks extends API {
 		echo sprintf(
 			wp_kses(
 				__(
-					'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above.',
+					'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create a Plugin Token</a> and insert it into the Plugin Token field above.',
 					'plausible-analytics'
 				),
 				'post'
@@ -179,14 +179,14 @@ class Hooks extends API {
 	}
 
 	/**
-	 * Display option disabled by missing API token warning.
+	 * Display option disabled by missing Plugin Token warning.
 	 *
 	 * @output HTML
 	 */
 	public function option_disabled_by_missing_api_token() {
 		echo wp_kses(
 			__(
-				'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create an API token</a> and insert it into the API token field above to enable this option.',
+				'Please <a class="plausible-create-api-token hover:cursor-pointer underline">create a Plugin Token</a> and insert it into the Plugin Token field above to enable this option.',
 				'plausible-analytics'
 			),
 			'post'
