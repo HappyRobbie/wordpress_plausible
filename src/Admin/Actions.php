@@ -70,6 +70,7 @@ class Actions {
 			return;
 		}
 
+		// Self-hosters should never be redirected to the settings screen, because the wizard isn't shown to them.
 		$wizard_done = get_option( 'plausible_analytics_wizard_done', false ) || ! empty( Helpers::get_settings()[ 'self_hosted_domain' ] );
 
 		if ( ! $wizard_done ) {
