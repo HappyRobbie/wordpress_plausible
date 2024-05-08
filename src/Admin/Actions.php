@@ -70,7 +70,8 @@ class Actions {
 			return;
 		}
 
-		$wizard_done = get_option( 'plausible_analytics_wizard_done', false );
+		// Self-hosters should never be redirected to the settings screen, because the wizard isn't shown to them.
+		$wizard_done = get_option( 'plausible_analytics_wizard_done', false ) || ! empty( Helpers::get_settings()[ 'self_hosted_domain' ] );
 
 		if ( ! $wizard_done ) {
 			$url = admin_url( 'options-general.php?page=plausible_analytics#welcome_slide' );
