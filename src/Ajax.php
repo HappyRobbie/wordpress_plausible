@@ -309,12 +309,16 @@ class Ajax {
 		$client = new Client( $token );
 
 		if ( ! $client->validate_api_token() ) {
+			$hosted_domain = Helpers::get_hosted_domain_url();
+			$domain        = Helpers::get_domain();
+
 			Messages::set_error(
 				sprintf(
 					__(
-						'Oops! The Plugin Token you used is invalid. Please <a class="plausible-create-api-token hover:cursor-pointer underline">click here</a> to generate a new token. <a target="_blank" href="%s">Read more</a>',
+						'Oops! The Plugin Token you used is invalid. Please <a href="%s" target="_blank">create a new token</a>. <a target="_blank" href="%s">Read more</a>',
 						'plausible-analytics'
 					),
+					"$hosted_domain/$domain/settings/integrations?new_token=WordPress",
 					'https://plausible.io/wordpress-analytics-plugin#oops-the-token-you-used-is-invalid'
 				)
 			);
