@@ -7,10 +7,15 @@
  * @subpackage Plausible Analytics
  */
 
-namespace Plausible\Analytics\WP;
+namespace Plausible\Analytics\WP\Includes;
 
 use WP_Term;
 use Exception;
+
+// Bailout, if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class Filters {
 	/**
@@ -22,6 +27,7 @@ class Filters {
 	 */
 	public function __construct() {
 		add_filter( 'script_loader_tag', [ $this, 'add_plausible_attributes' ], 10, 2 );
+		add_filter( 'rest_url', [ $this, 'wpml_compatibility' ], 10, 1 );
 		add_filter( 'plausible_analytics_script_params', [ $this, 'maybe_add_custom_params' ] );
 	}
 
@@ -62,6 +68,25 @@ class Filters {
 	}
 
 	/**
+	 * WPML overrides the REST API URL to include the language 'subdirectory', which leads to 404s.
+	 * This forces it back to default behavior.
+	 *
+	 * @param mixed $url
+	 *
+	 * @return string|void
+	 * @throws Exception
+	 */
+	public function wpml_compatibility( $url ) {
+		$rest_endpoint = Helpers::get_rest_endpoint( false );
+
+		if ( strpos( $url, $rest_endpoint ) !== false ) {
+			return get_option( 'home' ) . $rest_endpoint;
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Adds custom parameters Author and Category if Custom Pageview Properties is enabled.
 	 *
 	 * @param $params
@@ -89,15 +114,23 @@ class Filters {
 			$params .= " event-author='$author_name'";
 		}
 
-		$categories = get_the_category( $post->ID );
+		// Add support for post category and tags along with custom taxonomies.
+		$taxonomies = get_object_taxonomies( $post->post_type );
 
-		if ( ! is_array( $categories ) ) {
-			return $params; // @codeCoverageIgnore
-		}
+		// Loop through existing taxonomies.
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = get_the_terms( $post->ID, $taxonomy );
 
-		foreach ( $categories as $category ) {
-			if ( $category instanceof WP_Term ) {
-				$params .= " event-category='$category->name'";
+			// Skip the iteration, if `$terms` is not array.
+			if ( ! is_array( $terms ) ) {
+				continue // @codeCoverageIgnore;
+			}
+
+			// Loop through the terms.
+			foreach ( $terms as $term ) {
+				if ( $term instanceof WP_Term ) {
+					$params .= " event-{$taxonomy}='{$term->name}'";
+				}
 			}
 		}
 
