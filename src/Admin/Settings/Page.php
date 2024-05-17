@@ -80,7 +80,7 @@ class Page extends API {
 					'desc'   => sprintf(
 						wp_kses(
 							__(
-								'Ensure your domain name matches the one in <a href="%s" target="_blank">your Plausible account</a>, then <a class="hover:cursor-pointer underline plausible-create-api-token">create an API token</a> (link opens in a new window) and paste it into the \'API token\' field.',
+								'Ensure your domain name matches the one in <a href="%s" target="_blank">your Plausible account</a>, then <a class="hover:cursor-pointer underline plausible-create-api-token">create a Plugin Token</a> (link opens in a new window) and paste it into the \'Plugin Token\' field.',
 								'plausible-analytics'
 							),
 							'post'
@@ -95,7 +95,11 @@ class Page extends API {
 							'value' => Helpers::get_domain(),
 						],
 						[
-							'label' => esc_html__( 'API token', 'plausible-analytics' ),
+							'label' => esc_html__( 'Plugin Token', 'plausible-analytics' ) .
+								' - ' .
+								'<a class="hover:cursor-pointer underline plausible-create-api-token">' .
+								__( 'Create Token', 'plausible-analytics' ) .
+								'</a>',
 							'slug'  => 'api_token',
 							'type'  => 'text',
 							'value' => $settings[ 'api_token' ],
@@ -413,7 +417,7 @@ class Page extends API {
 		}
 
 		/**
-		 * No API token is entered.
+		 * No Plugin Token is entered.
 		 */
 		if ( empty( $settings[ 'api_token' ] ) ) {
 			$this->fields[ 'general' ][ 0 ][ 'fields' ][] = self::API_TOKEN_MISSING_HOOK;

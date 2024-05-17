@@ -62,7 +62,7 @@ class API {
 			$this->slides             = [
 				'welcome'                    => __( 'Welcome to Plausible Analytics', 'plausible-analytics' ),
 				'domain_name'                => __( 'Confirm domain', 'plausible-analytics' ),
-				'api_token'                  => __( 'Create API token', 'plausible-analytics' ),
+				'api_token'                  => __( 'Create Plugin Token', 'plausible-analytics' ),
 				'enable_analytics_dashboard' => __( 'View the stats in your WP dashboard', 'plausible-analytics' ),
 				'enhanced_measurements'      => __( 'Enhanced measurements', 'plausible-analytics' ),
 				'proxy_enabled'              => __( 'Enable proxy', 'plausible-analytics' ),
@@ -82,7 +82,7 @@ class API {
 					'plausible-analytics'
 				),
 				'api_token'                  => __(
-					'<a class="hover:cursor-pointer underline plausible-create-api-token">Create an API token</a> (link opens in a new window) that we\'ll use to automate your setup process. Paste the API token in the field below and click "Next".',
+					'<a class="hover:cursor-pointer underline plausible-create-api-token">Create a Plugin Token</a> (link opens in a new window) that we\'ll use to automate your setup process. Paste the Plugin Token in the field below and click "Next".',
 					'plausible-analytics'
 				),
 				'enable_analytics_dashboard' => __(
@@ -135,11 +135,11 @@ class API {
 						'plausible-analytics'
 					),
 					__(
-						'For instance, after inserting the API token, enable the new Authors and categories tracking and it will be displayed in your stats immediately without you needing to add those properties manually in your site settings.',
+						'For instance, after inserting the Plugin Token, enable the new Authors and categories tracking and it will be displayed in your stats immediately without you needing to add those properties manually in your site settings.',
 						'plausible-analytics'
 					),
 					__(
-						'This welcome screen will guide you through the process of creating the API token and introduce you to other new features we\'ve added, e.g. Revenue tracking. Click on the “Next” button below to start.',
+						'This welcome screen will guide you through the process of creating the Plugin Token and introduce you to other new features we\'ve added, e.g. Revenue tracking. Click on the “Next” button below to start.',
 						'plausible-analytics'
 					),
 					__( 'We hope you’ll find this useful. Thanks again for using Plausible!', 'plausible-analytics' )
@@ -618,7 +618,7 @@ class API {
 		?>
 		<div class="mt-4">
 			<label class="block text-sm font-medium leading-5 !text-gray-700 !dark:text-gray-300"
-				   for="<?php echo $field[ 'slug' ]; ?>"><?php echo esc_attr( $field[ 'label' ] ); ?></label>
+				   for="<?php echo $field[ 'slug' ]; ?>"><?php echo $field[ 'label' ]; ?></label>
 			<div class="mt-1">
 				<input
 					class="block w-full !border-gray-300 !dark:border-gray-700 !rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-900 dark:text-gray-300 py-2 px-3"
