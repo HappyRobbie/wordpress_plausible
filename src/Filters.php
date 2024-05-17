@@ -7,7 +7,7 @@
  * @subpackage Plausible Analytics
  */
 
-namespace Plausible\Analytics\WP\Includes;
+namespace Plausible\Analytics\WP;
 
 use WP_Term;
 use Exception;
@@ -123,7 +123,7 @@ class Filters {
 
 			// Skip the iteration, if `$terms` is not array.
 			if ( ! is_array( $terms ) ) {
-				continue // @codeCoverageIgnore;
+				continue; // @codeCoverageIgnore;
 			}
 
 			// Loop through the terms.
