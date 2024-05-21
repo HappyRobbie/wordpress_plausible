@@ -232,24 +232,24 @@ class Ajax {
 	 * Adds the 'additional' array element to $message if applicable.
 	 *
 	 * @param $option_name
-	 * @param $toggle_status
+	 * @param $option_value
 	 *
 	 * @return string
 	 */
-	private function maybe_render_additional_message( $option_name, $toggle_status ) {
-		if ( ! $toggle_status ) {
-			return '';
-		}
-
+	private function maybe_render_additional_message( $option_name, $option_value ) {
 		$additional_message_html = '';
 		$hooks                   = new Hooks( false );
 
-		if ( $option_name === 'proxy_enabled' ) {
+		if ( $option_name === 'proxy_enabled' && $option_value !== '' ) {
 			$additional_message_html = $hooks->render_hook_field( Page::PROXY_WARNING_HOOK );
 		}
 
-		if ( $option_name === 'enable_analytics_dashboard' ) {
+		if ( $option_name === 'enable_analytics_dashboard' && $option_value !== '' ) {
 			$additional_message_html = $hooks->render_hook_field( Page::ENABLE_ANALYTICS_DASH_NOTICE );
+		}
+
+		if ( $option_name === 'api_token' && $option_value === '' ) {
+			$additional_message_html = $hooks->render_hook_field( Page::API_TOKEN_MISSING_HOOK );
 		}
 
 		return $additional_message_html;
@@ -287,6 +287,10 @@ class Ajax {
 			// Validate Plugin Token, if this is the Plugin Token field.
 			if ( $option->name === 'api_token' ) {
 				$this->validate_api_token( $option->value );
+
+				$additional = $this->maybe_render_additional_message( $option->name, $option->value );
+
+				Messages::set_additional( $additional, $option->name );
 			}
 		}
 
@@ -323,7 +327,7 @@ class Ajax {
 				)
 			);
 
-			wp_send_json_error( null, 400 );
+			wp_send_json_error( 'invalid_api_token', 400 );
 		}
 	}
 }

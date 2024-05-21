@@ -149,7 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			form.append('options', JSON.stringify(options));
 			form.append('_nonce', plausible.nonce);
 
-			button.children[0].classList.remove('hidden');
+			if (button.children.length > 0) {
+				button.children[0].classList.remove('hidden');
+			}
+
 			button.setAttribute('disabled', 'disabled');
 
 			plausible.ajax(form, button);
@@ -330,8 +333,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			).then(response => {
 				if (button) {
-					button.children[0].classList += ' hidden';
-					button.removeAttribute('disabled');
+					if (button.children.length > 0) {
+						button.children[0].classList += ' hidden';
+					}
+
+					if (button.id === 'connect_plausible_analytics' && response.status === 200) {
+						button.innerText = plausible_analytics_i18n.connected;
+					} else {
+						button.removeAttribute('disabled');
+					}
 				}
 
 				if (response.status === 200) {

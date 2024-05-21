@@ -11,6 +11,7 @@
 namespace Plausible\Analytics\WP\Admin\Settings;
 
 use Exception;
+use Plausible\Analytics\WP\Client;
 use Plausible\Analytics\WP\Helpers;
 
 class Page extends API {
@@ -59,6 +60,11 @@ class Page extends API {
 	public $fields = [];
 
 	/**
+	 * @var Client $client
+	 */
+	private $client;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since  1.3.0
@@ -71,6 +77,7 @@ class Page extends API {
 
 		$settings = Helpers::get_settings();
 
+		$this->client = new Client();
 		$this->fields = [
 			'general'     => [
 				[
@@ -109,7 +116,9 @@ class Page extends API {
 								esc_html__( 'Connect', 'plausible-analytics' ) : esc_html__( 'Connected', 'plausible-analytics' ),
 							'slug'     => 'connect_plausible_analytics',
 							'type'     => 'button',
-							'disabled' => ( empty( $settings[ 'domain_name' ] ) || empty( $settings[ 'api_token' ] ) ),
+							'disabled' => empty( $settings[ 'domain_name' ] ) ||
+								empty( $settings[ 'api_token' ] ) ||
+								$this->client->is_api_token_valid(),
 						],
 					],
 				],
