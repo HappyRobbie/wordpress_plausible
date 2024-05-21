@@ -25,7 +25,7 @@ class Actions {
 
 	/**
 	 * This <meta> tag "tells" the Plausible API which version of the plugin is used, to allow tailored error messages, specific to the plugin
-	 * version or whether the plugin is used or not.
+	 * version.
 	 *
 	 * @return void
 	 */
