@@ -18,8 +18,21 @@ class Actions {
 	 * @return void
 	 */
 	public function __construct() {
+		add_action( 'wp_head', [ $this, 'insert_version_meta_tag' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'maybe_register_assets' ] );
 		add_action( 'admin_bar_menu', [ $this, 'admin_bar_node' ], 100 );
+	}
+
+	/**
+	 * This <meta> tag "tells" the Plausible API which version of the plugin is used, to allow tailored error messages, specific to the plugin
+	 * version.
+	 *
+	 * @return void
+	 */
+	public function insert_version_meta_tag() {
+		$version = PLAUSIBLE_ANALYTICS_VERSION;
+
+		echo "<meta name='plausible-analytics-version' content='$version' />\n";
 	}
 
 	/**
