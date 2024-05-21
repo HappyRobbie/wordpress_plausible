@@ -7,6 +7,7 @@
 /.github
 /.storybook
 
+/bin
 /tests
 /node_modules
 /assets/src
@@ -18,11 +19,14 @@
 .travis.yml
 .editorconfig
 .babelrc
+.gitpod.yml
 .jscrsrc
 .jshintrc
 .eslintignore
 .eslintrc
 .eslintrc.json
+.nvmrc
+.phpcs.xml.dist
 .prettierrc.json
 .prettierignore
 .stylelintrc.json
@@ -34,12 +38,16 @@
 sample-data/wordpress.sql
 sample-data/sample-data.numbers
 bower.json
+codecov.yml
 composer.json
 composer.lock
+npm-shrinkwrap.json
+openapitools.json
 package.json
 package-lock.json
 phpunit.xml
 phpunit.xml.dist
+phpunit-with-integration.xml
 plausible-analytics.zip
 CHANGELOG.md
 README.md
@@ -52,4 +60,5 @@ contributing.md
 postcss.config.js
 webpack.config.js
 docker-compose.yml
+tailwind.config.js
 wp-textdomain.js
