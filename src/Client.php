@@ -34,8 +34,8 @@ class Client {
 	 */
 	public function __construct( $token = '' ) {
 		$config             = Configuration::getDefaultConfiguration()->setUsername( 'WordPress' )->setPassword(
-				$token ?: Helpers::get_settings()[ 'api_token' ]
-			)->setHost( Helpers::get_hosted_domain_url() );
+			$token ?: Helpers::get_settings()[ 'api_token' ]
+		)->setHost( Helpers::get_hosted_domain_url() );
 		$this->api_instance = new DefaultApi( new GuzzleClient(), $config );
 	}
 
@@ -46,10 +46,7 @@ class Client {
 	 * @throws ApiException
 	 */
 	public function validate_api_token() {
-		$token    = $this->api_instance->getConfig()->getPassword();
-		$is_valid = ! empty( get_transient( 'plausible_analytics_valid_token' )[ $token ] );
-
-		if ( $is_valid ) {
+		if ( $this->is_api_token_valid() ) {
 			return true; // @codeCoverageIgnore
 		}
 
@@ -60,11 +57,23 @@ class Client {
 		}
 
 		$data_domain = $this->get_data_domain();
+		$token       = $this->api_instance->getConfig()->getPassword();
 		$is_valid    = strpos( $token, 'plausible-plugin' ) !== false && ! empty( $features->getGoals() ) && $data_domain === Helpers::get_domain();
 
 		set_transient( 'plausible_analytics_valid_token', [ $token => $is_valid ], 86400 );
 
 		return $is_valid;
+	}
+
+	/**
+	 * Is currently stored token valid?
+	 *
+	 * @return bool
+	 */
+	public function is_api_token_valid() {
+		$token = $this->api_instance->getConfig()->getPassword();
+
+		return ! empty( get_transient( 'plausible_analytics_valid_token' )[ $token ] );
 	}
 
 	/**
