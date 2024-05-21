@@ -34,7 +34,7 @@ class Actions {
 	 */
 	public function register_assets( $current_page ) {
 		if ( $current_page === 'settings_page_plausible_analytics' || $current_page === 'dashboard_page_plausible_analytics_statistics' ) {
-			\wp_enqueue_style(
+			wp_enqueue_style(
 				'plausible-admin',
 				PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/css/plausible-admin.css',
 				'',
@@ -43,13 +43,17 @@ class Actions {
 			);
 		}
 
-		\wp_enqueue_script(
+		wp_register_script(
 			'plausible-admin',
 			PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/js/plausible-admin.js',
 			'',
 			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-admin.js' ),
-			true
+			[ 'in_footer' => true ]
 		);
+
+		wp_localize_script( 'plausible-admin', 'plausible_analytics_i18n', [ 'connected' => __( 'Connected', 'plausible-analytics' ) ] );
+
+		wp_enqueue_script( 'plausible-admin' );
 
 		wp_add_inline_script( 'plausible-admin', 'var plausible_analytics_hosted_domain = "' . Helpers::get_hosted_domain_url() . '";' );
 	}
