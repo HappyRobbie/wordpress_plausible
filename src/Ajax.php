@@ -14,6 +14,9 @@ use Plausible\Analytics\WP\Admin\Settings\Hooks;
 use Plausible\Analytics\WP\Admin\Settings\Page;
 use Plausible\Analytics\WP\Client\ApiException;
 
+/**
+ * @codeCoverageIgnore At least until I figure out how to properly test AJAX requests in CI.
+ */
 class Ajax {
 	/**
 	 * Build class.
