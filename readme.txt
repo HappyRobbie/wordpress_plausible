@@ -3,7 +3,7 @@ Contributors: plausible, DaanvandenBergh
 Donate link: https://plausible.io/
 Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
-Tested up to: 6.4
+Tested up to: 6.5
 Requires PHP: 7.0
 Stable tag: 2.0.9
 License: Massachusetts Institute of Technology (MIT) license
