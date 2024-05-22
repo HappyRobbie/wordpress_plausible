@@ -435,12 +435,12 @@ class API {
 	 * @return array|mixed
 	 */
 	private function get_wizard_option_properties( $slug ) {
-		foreach ( $this->fields[ 'general' ] as $key => $group ) {
+		foreach ( $this->fields[ 'general' ] as $group ) {
 			if ( $group[ 'slug' ] === $slug ) {
 				return $group;
 			}
 
-			foreach ( $group[ 'fields' ] as $key => $field ) {
+			foreach ( $group[ 'fields' ] as $field ) {
 				if ( $field[ 'slug' ] === $slug ) {
 					return $field;
 				}

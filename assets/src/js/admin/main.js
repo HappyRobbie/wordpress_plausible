@@ -166,22 +166,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		saveOptionOnNext: function (e) {
 			let hash = document.location.hash.replace('#', '');
 
-			if (hash === 'api_token_slide' || hash === 'domain_name_slide') {
-				let form = e.target.closest('.plausible-analytics-wizard-step-section');
-				let inputs = form.getElementsByTagName('INPUT');
-				let options = [];
-
-				for (let input of inputs) {
-					options.push({name: input.name, value: input.value});
-				}
-
-				let data = new FormData();
-				data.append('action', 'plausible_analytics_save_options');
-				data.append('options', JSON.stringify(options));
-				data.append('_nonce', plausible.nonce);
-
-				plausible.ajax(data);
+			if (hash !== 'api_token_slide' && hash !== 'domain_name_slide') {
+				return;
 			}
+
+			let form = e.target.closest('.plausible-analytics-wizard-step-section');
+			let inputs = form.getElementsByTagName('INPUT');
+			let options = [];
+
+			for (let input of inputs) {
+				options.push({name: input.name, value: input.value});
+			}
+
+			let data = new FormData();
+
+			data.append('action', 'plausible_analytics_save_options');
+			data.append('options', JSON.stringify(options));
+			data.append('_nonce', plausible.nonce);
+
+			plausible.ajax(data).then(response => {
+				/**
+				 * Disable View Stats button, if API token is entered and valid.
+				 */
+				if (hash === 'api_token_slide' && response.success === true) {
+					let stats_button = document.getElementById('enable_analytics_dashboard_view_stats_in_wordpress');
+
+					stats_button.removeAttribute('disabled');
+				}
+			});
 		},
 
 		/**
@@ -358,7 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				document.dispatchEvent(event);
 
-				return response.data;
+				if (response.data !== undefined) {
+					return response.data;
+				} else {
+					return response;
+				}
 			});
 		},
 
