@@ -5,7 +5,7 @@ Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
 Tested up to: 6.4
 Requires PHP: 7.0
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: Massachusetts Institute of Technology (MIT) license
 License URI: https://opensource.org/licenses/MIT
 
@@ -156,5 +156,17 @@ Contact us: https://plausible.io/contact
 Please make sure you make a backup of your database before updating any version to ensure that none of your data is lost.
 
 == Changelog ==
+
+= v2.0.9 | May 22nd, 2024 =
+
+* Improved: Added files required for Automated Testing.
+* Improved: Updated API client.
+* Improved: Auto provisioning is now enabled for Plausible Community Edition (self-hosting) as well. This means a plugin token is now required when Plausible CE is used.
+  * *Important!* Plausible CE v2.1.0-rc.0 or higher is required to access the plugin token feature.
+* Improved: The Settings page no longer reloads when certain features are enabled.
+* Improved: The Authors and Categories feature now supports custom post types.
+* Fixed: Enhanced Measurements couldn't be enabled when Plausible CE was used.
+* Fixed: Plausible CE users would be stuck on the onboarding wizard after updating to v2.0.8.
+* Overall code improvements and bug fixes.
 
 For the full changelog, check out [our Github repository](https://github.com/plausible/wordpress/releases).
