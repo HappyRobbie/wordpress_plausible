@@ -64,6 +64,7 @@ class WooCommerce {
 		echo sprintf( ECommerce::SCRIPT_WRAPPER, "window.plausible( '$event_label', $props )" );
 
 		$order->add_meta_data( self::PURCHASE_TRACKED_META_KEY, true );
+		$order->save();
 	}
 
 	/**
