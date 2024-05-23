@@ -10,9 +10,26 @@
 namespace Plausible\Analytics\WP\ECommerce;
 
 use Plausible\Analytics\WP\ECommerce;
+use Plausible\Analytics\WP\Proxy;
+use WC_Cart;
 
 class WooCommerce {
 	const PURCHASE_TRACKED_META_KEY = '_plausible_analytics_purchase_tracked';
+
+	const CUSTOM_PROPERTIES         = [
+		'id',
+		'order_id',
+		'name',
+		'price',
+		'product_id',
+		'variation_id',
+		'quantity',
+		'tax_class',
+		'subtotal',
+		'subtotal_tax',
+		'total',
+		'total_tax',
+	];
 
 	/**
 	 * Build class.
@@ -28,6 +45,8 @@ class WooCommerce {
 	 */
 	private function init() {
 		add_action( 'woocommerce_thankyou', [ $this, 'track_purchase' ] );
+		add_action( 'woocommerce_add_to_cart', [ $this, 'track_add_to_cart' ], 10, 4 );
+		add_action( 'woocommerce_remove_cart_item', [ $this, 'track_remove_cart_item' ], 10, 2 );
 	}
 
 	/**
@@ -83,10 +102,96 @@ class WooCommerce {
 		}
 
 		foreach ( $items as &$item ) {
-			unset( $item[ 'taxes' ] );
-			unset( $item[ 'meta_data' ] );
+			$item = $this->clean_data( $item );
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Removes unneeded elements from the array.
+	 *
+	 * @param array $product Product Data.
+	 *
+	 * @return mixed
+	 */
+	private function clean_data( $product ) {
+		foreach ( $product as $key => $value ) {
+			if ( ! in_array( $key, self::CUSTOM_PROPERTIES ) ) {
+				unset( $product[ $key ] );
+			}
+		}
+
+		return $product;
+	}
+
+	/**
+	 * @param string $item_cart_id ID of the item in the cart.
+	 * @param string $product_id   ID of the product added to the cart.
+	 * @param        $quantity
+	 * @param        $variation_id
+	 *
+	 * @return void
+	 */
+	public function track_add_to_cart( $item_cart_id, $product_id, $quantity, $variation_id ) {
+		$product       = wc_get_product( $product_id );
+		$product_data  = $this->clean_data( $product->get_data() );
+		$cart          = wc()->cart;
+		$cart_contents = $cart->get_cart_contents();
+
+		foreach ( $cart_contents as &$cart_item ) {
+			$cart_item = $this->clean_data( $cart_item );
+		}
+
+		$added_to_cart = [
+			'quantity'     => $quantity,
+			'variation_id' => $variation_id,
+		];
+		$props         = apply_filters(
+			'plausible_analytics_ecommerce_woocommerce_track_add_to_cart_custom_properties',
+			[
+				'props' => [
+					'item' => array_merge( $added_to_cart, $product_data ),
+					'cart' => $cart_contents,
+				],
+			]
+		);
+		$event_label   = __( 'Add to cart', 'plausible-analytics' );
+		$proxy         = new Proxy( false );
+
+		$proxy->do_request( wp_get_referer(), $event_label, $props );
+	}
+
+	/**
+	 * Track Remove from cart events.
+	 *
+	 * @param string  $cart_item_key Key of item being removed from cart.
+	 * @param WC_Cart $cart          Instance of the current cart.
+	 *
+	 * @return void
+	 */
+	public function track_remove_cart_item( $cart_item_key, $cart ) {
+		$cart_contents          = $cart->get_cart_contents();
+		$item_removed_from_cart = $this->clean_data( $cart_contents[ $cart_item_key ] ?? [] );
+
+		unset( $cart_contents[ $cart_item_key ] );
+
+		foreach ( $cart_contents as &$item_in_cart ) {
+			$item_in_cart = $this->clean_data( $item_in_cart );
+		}
+
+		$props       = apply_filters(
+			'plausible_analytics_ecommerce_woocommerce_track_remove_cart_item_custom_properties',
+			[
+				'props' => [
+					'removed_item' => $item_removed_from_cart,
+					'cart'         => $cart_contents,
+				],
+			]
+		);
+		$event_label = __( 'Remove cart item', 'plausible-analytics' );
+		$proxy       = new Proxy( false );
+
+		$proxy->do_request( wp_get_referer(), $event_label, $props );
 	}
 }

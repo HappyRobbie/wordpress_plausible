@@ -11,6 +11,7 @@ namespace Plausible\Analytics\WP\Admin;
 
 use Exception;
 use Plausible\Analytics\WP\Helpers;
+use Plausible\Analytics\WP\Proxy;
 
 class Module {
 	/**
@@ -252,31 +253,9 @@ class Module {
 			return false; // @codeCoverageIgnore
 		}
 
-		$namespace = Helpers::get_proxy_resource( 'namespace' );
-		$base      = Helpers::get_proxy_resource( 'base' );
-		$endpoint  = Helpers::get_proxy_resource( 'endpoint' );
-		$request   = new \WP_REST_Request( 'POST', "/$namespace/v1/$base/$endpoint" );
-		$request->set_body(
-			wp_json_encode(
-				[
-					'd' => 'plausible.test',
-					'n' => 'pageview',
-					'u' => 'https://plausible.test/test',
-				]
-			)
-		);
+		$proxy  = new Proxy( false );
+		$result = $proxy->do_request( 'plausible.test', 'pageview', 'https://plausible.test/test' );
 
-		/** @var \WP_REST_Response $result */
-		try {
-			$result = rest_do_request( $request );
-		} catch ( \Exception $e ) { // @codeCoverageIgnore
-			/**
-			 * There's no need to handle the error, because we don't want to display it anyway.
-			 * We'll leave the parameter for backwards compatibility.
-			 */
-			return false; // @codeCoverageIgnore
-		}
-
-		return wp_remote_retrieve_response_code( $result->get_data() ) === 202;
+		return wp_remote_retrieve_response_code( $result ) === 202;
 	}
 }
