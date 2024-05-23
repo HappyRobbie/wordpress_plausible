@@ -1,6 +1,6 @@
 <?php
 /**
- * Plausible Analytics | Filters.
+ * Plausible Analytics | Compatibility.
  *
  * @since      1.2.5
  * @package    WordPress

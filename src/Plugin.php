@@ -43,6 +43,7 @@ final class Plugin {
 		new Actions();
 		new Ajax();
 		new Compatibility();
+		new ECommerce();
 		new Filters();
 		new Proxy();
 		new Setup();
