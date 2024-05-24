@@ -14,6 +14,9 @@ namespace Plausible\Analytics\WP;
 
 use Exception;
 use WP_Error;
+use WP_HTTP_Response;
+use WP_REST_Request;
+use WP_REST_Server;
 
 class Proxy {
 	/**
@@ -88,6 +91,8 @@ class Proxy {
 		if ( Helpers::proxy_enabled( $settings ) ) {
 			add_action( 'rest_api_init', [ $this, 'register_route' ] );
 		}
+
+		add_filter( 'rest_post_dispatch', [ $this, 'force_http_response_code' ], null, 3 );
 	}
 
 	/**
@@ -199,5 +204,25 @@ class Proxy {
 				'schema' => null,
 			]
 		);
+	}
+
+	/**
+	 * Make sure our response code is returned, instead of the default 200 on success.
+	 *
+	 * @param WP_HTTP_Response $response
+	 * @param WP_REST_Server   $server
+	 * @param WP_REST_Request  $request
+	 *
+	 * @return WP_HTTP_Response
+	 */
+	public function force_http_response_code( $response, $server, $request ) {
+		if ( strpos( $request->get_route(), $this->namespace ) === false ) {
+			return $response;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response->get_data() );
+		$response->set_status( $response_code );
+
+		return $response;
 	}
 }
