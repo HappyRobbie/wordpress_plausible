@@ -217,7 +217,7 @@ class Proxy {
 	 */
 	public function force_http_response_code( $response, $server, $request ) {
 		if ( strpos( $request->get_route(), $this->namespace ) === false ) {
-			return $response;
+			return $response; // @codeCoverageIgnore
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response->get_data() );
