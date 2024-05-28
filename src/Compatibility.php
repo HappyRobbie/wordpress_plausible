@@ -24,12 +24,11 @@ class Compatibility {
 			add_filter( 'autoptimize_filter_js_exclude', [ $this, 'exclude_plausible_js_as_string' ] );
 		}
 
-		// WP Rocket
-		if ( defined( 'WP_ROCKET_VERSION' ) ) {
-			add_filter( 'rocket_excluded_inline_js_content', [ $this, 'exclude_plausible_inline_js' ] );
-			add_filter( 'rocket_exclude_js', [ $this, 'exclude_plausible_js' ] );
-			add_filter( 'rocket_minify_excluded_external_js', [ $this, 'exclude_plausible_js' ] );
-			add_filter( 'rocket_delay_js_scripts', [ $this, 'exclude_plausible_js' ] );
+		// LiteSpeed Cache
+		if ( defined( 'LSCWP_V' ) ) {
+			add_filter( 'litespeed_optimize_js_excludes', [ $this, 'exclude_plausible_js' ] );
+			add_filter( 'litespeed_optm_js_defer_exc', [ $this, 'exclude_plausible_inline_js' ] );
+			add_filter( 'litespeed_optm_gm_js_exc', [ $this, 'exclude_plausible_inline_js' ] );
 		}
 
 		// SG Optimizer
@@ -41,20 +40,22 @@ class Compatibility {
 			add_filter( 'sgo_javascript_combine_excluded_external_paths', [ $this, 'exclude_plausible_js' ] );
 		}
 
+		// WPML
+		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+			add_filter( 'rest_url', [ $this, 'wpml_compatibility' ], 10, 1 );
+		}
+
 		// WP Optimize
 		if ( defined( 'WPO_VERSION' ) ) {
 			add_filter( 'wp-optimize-minify-default-exclusions', [ $this, 'exclude_plausible_js' ] );
 		}
 
-		// LiteSpeed Cache
-		if ( defined( 'LSCWP_V' ) ) {
-			add_filter( 'litespeed_optimize_js_excludes', [ $this, 'exclude_plausible_js' ] );
-			add_filter( 'litespeed_optm_js_defer_exc', [ $this, 'exclude_plausible_inline_js' ] );
-			add_filter( 'litespeed_optm_gm_js_exc', [ $this, 'exclude_plausible_inline_js' ] );
-		}
-
-		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-			add_filter( 'rest_url', [ $this, 'wpml_compatibility' ], 10, 1 );
+		// WP Rocket
+		if ( defined( 'WP_ROCKET_VERSION' ) ) {
+			add_filter( 'rocket_excluded_inline_js_content', [ $this, 'exclude_plausible_inline_js' ] );
+			add_filter( 'rocket_exclude_js', [ $this, 'exclude_plausible_js' ] );
+			add_filter( 'rocket_minify_excluded_external_js', [ $this, 'exclude_plausible_js' ] );
+			add_filter( 'rocket_delay_js_scripts', [ $this, 'exclude_plausible_js' ] );
 		}
 	}
 

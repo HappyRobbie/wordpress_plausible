@@ -100,19 +100,19 @@ class Proxy {
 	 *
 	 * @see https://plausible.io/docs/events-api
 	 *
-	 * @param string $url    URL of the page where the event was triggered.
 	 * @param string $name   Name of the event, defaults to 'pageview', all other names are treated as custom events by the API.
-	 * @param array  $props  Custom properties for the event.
 	 * @param string $domain Domain of the site in Plausible where the event should be registered.
+	 * @param string $url    URL of the page where the event was triggered.
+	 * @param array  $props  Custom properties for the event.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function do_request( $url, $name = 'pageview', $props = [], $domain = '' ) {
+	public function do_request( $name = 'pageview', $domain = '', $url = '', $props = [] ) {
 		$request = new \WP_REST_Request( 'POST', "/$this->namespace/v1/$this->base/$this->endpoint" );
 		$body    = [
-			'u' => $url,
 			'n' => $name,
 			'd' => $domain ?: Helpers::get_domain(),
+			'u' => $url ?: wp_get_referer(),
 		];
 
 		if ( ! empty( $props ) ) {

@@ -44,10 +44,45 @@ class WooCommerce {
 	 * @return void
 	 */
 	private function init() {
+		add_action( 'wp_enqueue_scripts', [ $this, 'add_js' ], 1 );
+		add_filter( 'woocommerce_store_api_add_to_cart_data', [ $this, 'add_http_referer' ], 10, 2 );
 		add_action( 'woocommerce_add_to_cart', [ $this, 'track_add_to_cart' ], 10, 4 );
 		add_action( 'woocommerce_remove_cart_item', [ $this, 'track_remove_cart_item' ], 10, 2 );
 		add_action( 'wp_head', [ $this, 'track_entered_checkout' ] );
 		add_action( 'woocommerce_thankyou', [ $this, 'track_purchase' ] );
+	}
+
+	/**
+	 * Enqueue required JS in frontend.
+	 *
+	 * @return void
+	 */
+	public function add_js() {
+		wp_enqueue_script(
+			'plausible-woocommerce-compatibility',
+			PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/js/plausible-compatibility-woocommerce.js',
+			[],
+			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-compatibility-woocommerce.js' )
+		);
+	}
+
+	/**
+	 * A bit of a hacky approach to ensuring the _wp_http_referer header is available to us when hitting the Proxy in @see self::track_add_to_cart()
+	 * and @see self::track_remove_cart_item().
+	 *
+	 * @param $add_to_cart_data
+	 * @param $request
+	 *
+	 * @return mixed
+	 */
+	public function add_http_referer( $add_to_cart_data, $request ) {
+		$http_referer = $request->get_param( '_wp_http_referer' );
+
+		if ( ! empty( $http_referer ) ) {
+			$_REQUEST[ '_wp_http_referer' ] = sanitize_url( $http_referer );
+		}
+
+		return $add_to_cart_data;
 	}
 
 	/**
@@ -84,7 +119,7 @@ class WooCommerce {
 		$event_label   = __( 'Add Item To Cart', 'plausible-analytics' );
 		$proxy         = new Proxy( false );
 
-		$proxy->do_request( wp_get_referer(), $event_label, $props );
+		$proxy->do_request( $event_label, null, null, $props );
 	}
 
 	/**
@@ -134,7 +169,7 @@ class WooCommerce {
 		$event_label = __( 'Remove Cart Item', 'plausible-analytics' );
 		$proxy       = new Proxy( false );
 
-		$proxy->do_request( wp_get_referer(), $event_label, $props );
+		$proxy->do_request( $event_label, null, null, $props );
 	}
 
 	/**

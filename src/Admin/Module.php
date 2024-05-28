@@ -254,7 +254,7 @@ class Module {
 		}
 
 		$proxy  = new Proxy( false );
-		$result = $proxy->do_request( 'plausible.test', 'pageview', 'https://plausible.test/test' );
+		$result = $proxy->do_request( 'pageview', 'plausible.test', 'https://plausible.test/test' );
 
 		return wp_remote_retrieve_response_code( $result ) === 202;
 	}
