@@ -12,29 +12,59 @@ namespace Plausible\Analytics\WP\ECommerce;
 use Plausible\Analytics\WP\ECommerce;
 use Plausible\Analytics\WP\Proxy;
 use WC_Cart;
+use WC_Product;
 
 class WooCommerce {
 	const PURCHASE_TRACKED_META_KEY = '_plausible_analytics_purchase_tracked';
 
 	const CUSTOM_PROPERTIES         = [
+		'cart_total',
+		'cart_total_items',
+		'customer_id',
 		'id',
-		'order_id',
 		'name',
+		'order_id',
 		'price',
 		'product_id',
-		'variation_id',
 		'quantity',
-		'tax_class',
+		'shipping',
 		'subtotal',
 		'subtotal_tax',
+		'tax_class',
 		'total',
 		'total_tax',
+		'variation_id',
 	];
+
+	/**
+	 * @var string $track_add_to_cart_event_label
+	 */
+	private $track_add_to_cart_event_label;
+
+	/**
+	 * @var string $track_remove_cart_item_event_label
+	 */
+	private $track_remove_cart_item_event_label;
+
+	/**
+	 * @var string $track_entered_checkout_event_label
+	 */
+	private $track_entered_checkout_event_label;
+
+	/**
+	 * @var string $track_purchase_event_label
+	 */
+	private $track_purchase_event_label;
 
 	/**
 	 * Build class.
 	 */
 	public function __construct() {
+		$this->track_add_to_cart_event_label      = __( 'Add Item To Cart', 'plausible-analytics' );
+		$this->track_remove_cart_item_event_label = __( 'Remove Cart Item', 'plausible-analytics' );
+		$this->track_entered_checkout_event_label = __( 'Entered Checkout', 'plausible-analytics' );
+		$this->track_purchase_event_label         = __( 'Purchase', 'plausible-analytics' );
+
 		$this->init();
 	}
 
@@ -46,7 +76,12 @@ class WooCommerce {
 	private function init() {
 		add_action( 'wp_enqueue_scripts', [ $this, 'add_js' ], 1 );
 		add_filter( 'woocommerce_store_api_add_to_cart_data', [ $this, 'add_http_referer' ], 10, 2 );
-		add_action( 'woocommerce_add_to_cart', [ $this, 'track_add_to_cart' ], 10, 4 );
+		add_filter( 'woocommerce_before_add_to_cart_button', [ $this, 'insert_track_form_submit_class_name' ] );
+		/**
+		 * @todo We should use woocommerce_add_to_cart action instead, but that currently doesn't trigger on consecutive adds to the cart. Fix when resolved in WC.
+		 * @see  https://wordpress.org/support/topic/woocommerce_add_to_cart-action-isnt-triggered-on-consecutive-items/
+		 */
+		add_filter( 'woocommerce_store_api_validate_add_to_cart', [ $this, 'track_add_to_cart' ], 10, 2 );
 		add_action( 'woocommerce_remove_cart_item', [ $this, 'track_remove_cart_item' ], 10, 2 );
 		add_action( 'wp_head', [ $this, 'track_entered_checkout' ] );
 		add_action( 'woocommerce_thankyou', [ $this, 'track_purchase' ] );
@@ -58,6 +93,11 @@ class WooCommerce {
 	 * @return void
 	 */
 	public function add_js() {
+		// Causes errors in checkout and isn't needed either way.
+		if ( is_checkout() ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'plausible-woocommerce-compatibility',
 			PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/js/plausible-compatibility-woocommerce.js',
@@ -86,40 +126,51 @@ class WooCommerce {
 	}
 
 	/**
-	 * @param string $item_cart_id ID of the item in the cart.
-	 * @param string $product_id   ID of the product added to the cart.
-	 * @param        $quantity
-	 * @param        $variation_id
+	 * A hacky approach (with lack of a proper solution) to make sure Add To Cart events are tracked on simple product pages.
 	 *
 	 * @return void
 	 */
-	public function track_add_to_cart( $item_cart_id, $product_id, $quantity, $variation_id ) {
-		$product       = wc_get_product( $product_id );
+	public function insert_track_form_submit_class_name() {
+		?>
+		<script>
+			let cart = document.getElementsByClassName('cart');
+
+			if (cart.length > 0) {
+				for (let form of cart) {
+					form.classList.add('plausible-event-name=<?php echo str_replace( ' ', '+', $this->track_add_to_cart_event_label ); ?>')
+				}
+			}
+		</script>
+		<?php
+	}
+
+	/**
+	 * @param WC_Product $product          General information about the product added to cart.
+	 * @param array      $add_to_cart_data Cart data for the product added to the cart, e.g. quantity, variation ID, etc.
+	 *
+	 * @return void
+	 */
+	public function track_add_to_cart( $product, $add_to_cart_data ) {
 		$product_data  = $this->clean_data( $product->get_data() );
-		$cart          = wc()->cart;
-		$cart_contents = $cart->get_cart_contents();
-
-		foreach ( $cart_contents as &$cart_item ) {
-			$cart_item = $this->clean_data( $cart_item );
-		}
-
-		$added_to_cart = [
-			'quantity'     => $quantity,
-			'variation_id' => $variation_id,
-		];
+		$added_to_cart = $this->clean_data( $add_to_cart_data );
+		$cart          = WC()->cart;
 		$props         = apply_filters(
 			'plausible_analytics_ecommerce_woocommerce_track_add_to_cart_custom_properties',
 			[
 				'props' => [
-					'item' => array_merge( $added_to_cart, $product_data ),
-					'cart' => $cart_contents,
+					'product_name'     => $product_data[ 'name' ],
+					'product_id'       => $added_to_cart[ 'id' ],
+					'quantity'         => $added_to_cart[ 'quantity' ],
+					'price'            => $product_data[ 'price' ],
+					'tax_class'        => $product_data[ 'tax_class' ],
+					'cart_total_items' => count( $cart->get_cart_contents() ),
+					'cart_total'       => $cart->get_total(),
 				],
 			]
 		);
-		$event_label   = __( 'Add Item To Cart', 'plausible-analytics' );
 		$proxy         = new Proxy( false );
 
-		$proxy->do_request( $event_label, null, null, $props );
+		$proxy->do_request( $this->track_add_to_cart_event_label, null, null, $props );
 	}
 
 	/**
@@ -150,26 +201,22 @@ class WooCommerce {
 	public function track_remove_cart_item( $cart_item_key, $cart ) {
 		$cart_contents          = $cart->get_cart_contents();
 		$item_removed_from_cart = $this->clean_data( $cart_contents[ $cart_item_key ] ?? [] );
-
-		unset( $cart_contents[ $cart_item_key ] );
-
-		foreach ( $cart_contents as &$item_in_cart ) {
-			$item_in_cart = $this->clean_data( $item_in_cart );
-		}
-
-		$props       = apply_filters(
+		$props                  = apply_filters(
 			'plausible_analytics_ecommerce_woocommerce_track_remove_cart_item_custom_properties',
 			[
 				'props' => [
-					'removed_item' => $item_removed_from_cart,
-					'cart'         => $cart_contents,
+					'product_id'       => $item_removed_from_cart[ 'product_id' ],
+					'variation_id'     => $item_removed_from_cart[ 'variation_id' ],
+					'quantity'         => $item_removed_from_cart[ 'quantity' ],
+					'removed_item'     => $item_removed_from_cart,
+					'cart_total_items' => count( $cart_contents ),
+					'cart_total'       => $cart->get_total(),
 				],
 			]
 		);
-		$event_label = __( 'Remove Cart Item', 'plausible-analytics' );
-		$proxy       = new Proxy( false );
+		$proxy                  = new Proxy( false );
 
-		$proxy->do_request( $event_label, null, null, $props );
+		$proxy->do_request( $this->track_remove_cart_item_event_label, null, null, $props );
 	}
 
 	/**
@@ -180,23 +227,21 @@ class WooCommerce {
 			return;
 		}
 
-		$cart          = WC()->cart;
-		$cart_contents = $cart->get_cart_contents();
-
-		foreach ( $cart_contents as &$cart_item ) {
-			$cart_item = $this->clean_data( $cart_item );
-		}
-
-		$props       = apply_filters(
+		$session = WC()->session;
+		$cart    = WC()->cart;
+		$props   = apply_filters(
 			'plausible_analytics_ecommerce_woocommerce_track_entered_checkout_custom_properties',
 			[
-				'cart' => $cart_contents,
+				'customer_id' => $session->get_customer_id(),
+				'subtotal'    => $cart->get_subtotal(),
+				'shipping'    => $cart->get_shipping_total(),
+				'tax'         => $cart->get_total_tax(),
+				'total'       => $cart->get_total(),
 			]
 		);
-		$props       = wp_json_encode( $props );
-		$event_label = __( 'Entered Checkout', 'plausible-analytics' );
+		$props   = wp_json_encode( $props );
 
-		echo sprintf( ECommerce::SCRIPT_WRAPPER, "window.plausible( '$event_label', $props )" );
+		echo sprintf( ECommerce::SCRIPT_WRAPPER, "window.plausible( '$this->track_entered_checkout_event_label', $props )" );
 	}
 
 	/**
@@ -214,47 +259,24 @@ class WooCommerce {
 			return;
 		}
 
-		$items       = $this->get_items( $order );
-		$props       = apply_filters(
+		$props = apply_filters(
 			'plausible_analytics_ecommerce_woocommerce_track_purchase_custom_properties',
 			[
 				'transaction_id' => $order->get_transaction_id(),
-				'items'          => $items,
+				'order_id'       => $order_id,
+				'customer_id'    => $order->get_customer_id(),
 			]
 		);
-		$props       = wp_json_encode(
+		$props = wp_json_encode(
 			[
 				'revenue' => [ 'amount' => number_format_i18n( $order->get_total(), 2 ), 'currency' => $order->get_currency() ],
 				'props'   => $props,
 			]
 		);
-		$event_label = __( 'Purchase', 'plausible-analytics' );
 
-		echo sprintf( ECommerce::SCRIPT_WRAPPER, "window.plausible( '$event_label', $props )" );
+		echo sprintf( ECommerce::SCRIPT_WRAPPER, "window.plausible( '$this->track_purchase_event_label', $props )" );
 
 		$order->add_meta_data( self::PURCHASE_TRACKED_META_KEY, true );
 		$order->save();
-	}
-
-	/**
-	 * Returns an array of order item data.
-	 *
-	 * @param $order
-	 *
-	 * @return array
-	 */
-	private function get_items( $order ) {
-		$order_items = $order->get_items();
-		$items       = [];
-
-		foreach ( $order_items as $id => $item ) {
-			$items[] = $item->get_data();
-		}
-
-		foreach ( $items as &$item ) {
-			$item = $this->clean_data( $item );
-		}
-
-		return $items;
 	}
 }
