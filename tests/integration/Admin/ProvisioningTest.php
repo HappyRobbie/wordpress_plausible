@@ -45,7 +45,7 @@ class ProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * @see Provisioning::create_goals()
+	 * @see Provisioning::maybe_create_goals()
 	 * @throws ApiException
 	 */
 	public function testCreateGoals() {
@@ -84,7 +84,7 @@ class ProvisioningTest extends TestCase {
 
 		$class = new Provisioning( $mock );
 
-		$class->create_goals( [], $settings );
+		$class->maybe_create_goals( [], $settings );
 
 		$goal_ids = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 

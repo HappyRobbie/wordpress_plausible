@@ -11,6 +11,10 @@ namespace Plausible\Analytics\WP\Admin;
 
 use Plausible\Analytics\WP\Client;
 use Plausible\Analytics\WP\Client\ApiException;
+use Plausible\Analytics\WP\Client\Model\GoalCreateRequestCustomEvent;
+use Plausible\Analytics\WP\Helpers;
+use Plausible\Analytics\WP\Integrations;
+use Plausible\Analytics\WP\Integrations\WooCommerce;
 
 class Provisioning {
 	/**
@@ -21,11 +25,7 @@ class Provisioning {
 	/**
 	 * @var string[] $custom_event_goals
 	 */
-	private $custom_event_goals = [
-		'404'            => '404',
-		'outbound-links' => 'Outbound Link: Click',
-		'file-downloads' => 'File Download',
-	];
+	private $custom_event_goals = [];
 
 	/**
 	 * @var string[] $custom_pageview_properties
@@ -59,6 +59,12 @@ class Provisioning {
 			$this->client = new Client();
 		}
 
+		$this->custom_event_goals = [
+			'404'            => __( '404', 'plausible-analytics' ),
+			'outbound-links' => __( 'Outbound Link: Click', 'plausible-analytics' ),
+			'file-downloads' => __( 'File Download', 'plausible-analytics' ),
+		];
+
 		$this->init();
 	}
 
@@ -76,7 +82,8 @@ class Provisioning {
 		}
 
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_shared_link' ], 10, 2 );
-		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_goals' ], 10, 2 );
+		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_goals' ], 10, 2 );
+		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_woocommerce_goals' ], 10, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_goals' ], 11, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_custom_properties' ], 11, 2 );
 	}
@@ -117,7 +124,7 @@ class Provisioning {
 	 * @param $old_settings
 	 * @param $settings
 	 */
-	public function create_goals( $old_settings, $settings ) {
+	public function maybe_create_goals( $old_settings, $settings ) {
 		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
 
 		if ( empty( $enhanced_measurements ) ) {
@@ -125,7 +132,6 @@ class Provisioning {
 		}
 
 		$custom_event_keys = array_keys( $this->custom_event_goals );
-		$create_request    = new Client\Model\GoalCreateRequestBulkGetOrCreate();
 		$goals             = [];
 
 		foreach ( $enhanced_measurements as $measurement ) {
@@ -133,20 +139,47 @@ class Provisioning {
 				continue; // @codeCoverageIgnore
 			}
 
-			$goals[] = new Client\Model\GoalCreateRequestCustomEvent(
-				[
-					'goal'      => [
-						'event_name' => $this->custom_event_goals[ $measurement ],
-					],
-					'goal_type' => 'Goal.CustomEvent',
-				]
-			);
+			$goals[] = $this->create_request_custom_event( $this->custom_event_goals[ $measurement ] );
 		}
 
+		$this->create_goals( $goals );
+	}
+
+	/**
+	 * @param string $name     Event Name
+	 * @param string $type     CustomEvent|Revenue|Pageview
+	 * @param string $currency Required if $type is Revenue
+	 *
+	 * @return GoalCreateRequestCustomEvent
+	 */
+	private function create_request_custom_event( $name, $type = 'CustomEvent', $currency = '' ) {
+		$props = [
+			'goal'      => [
+				'event_name' => $name,
+			],
+			'goal_type' => "Goal.$type",
+		];
+
+		if ( $type === 'Revenue' ) {
+			$props[ 'goal' ][ 'currency' ] = $currency;
+		}
+
+		return new Client\Model\GoalCreateRequestCustomEvent( $props );
+	}
+
+	/**
+	 * Create the goals using the API client and updates the IDs in the database.
+	 *
+	 * @param $goals
+	 *
+	 * @return void
+	 */
+	private function create_goals( $goals ) {
 		if ( empty( $goals ) ) {
 			return; // @codeCoverageIgnore
 		}
 
+		$create_request = new Client\Model\GoalCreateRequestBulkGetOrCreate();
 		$create_request->setGoals( $goals );
 		$response = $this->client->create_goals( $create_request );
 
@@ -163,6 +196,33 @@ class Provisioning {
 				update_option( 'plausible_analytics_enhanced_measurements_goal_ids', $ids );
 			}
 		}
+	}
+
+	/**
+	 * @param $old_settings
+	 * @param $settings
+	 *
+	 * @return void
+	 */
+	public function maybe_create_woocommerce_goals( $old_settings, $settings ) {
+		if ( ! Helpers::is_enhanced_measurement_enabled( 'revenue', $settings[ 'enhanced_measurements' ] ) || ! Integrations::is_wc_active() ) {
+			return;
+		}
+
+		$goals       = [];
+		$woocommerce = new WooCommerce( false );
+
+		foreach ( $woocommerce->event_goals as $event_key => $event_goal ) {
+			if ( $event_key === 'purchase' ) {
+				$goals[] = $this->create_request_custom_event( $event_goal, 'Revenue', get_woocommerce_currency() );
+
+				continue;
+			}
+
+			$goals[] = $this->create_request_custom_event( $event_goal );
+		}
+
+		$this->create_goals( $goals );
 	}
 
 	/**
@@ -206,15 +266,30 @@ class Provisioning {
 	public function maybe_create_custom_properties( $old_settings, $settings ) {
 		$enhanced_measurements = $settings[ 'enhanced_measurements' ];
 
-		if ( ! in_array( 'pageview-props', $enhanced_measurements ) ) {
+		if ( ! Helpers::is_enhanced_measurement_enabled( 'pageview-props', $enhanced_measurements ) &&
+			! Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) ) {
 			return; // @codeCoverageIgnore
 		}
 
 		$create_request = new Client\Model\CustomPropEnableRequestBulkEnable();
 		$properties     = [];
 
-		foreach ( $this->custom_pageview_properties as $property ) {
-			$properties[] = new Client\Model\CustomProp( [ 'custom_prop' => [ 'key' => $property ] ] );
+		/**
+		 * Enable Custom Properties for Authors & Categories option.
+		 */
+		if ( Helpers::is_enhanced_measurement_enabled( 'pageview-props', $enhanced_measurements ) ) {
+			foreach ( $this->custom_pageview_properties as $property ) {
+				$properties[] = new Client\Model\CustomProp( [ 'custom_prop' => [ 'key' => $property ] ] );
+			}
+		}
+
+		/**
+		 * Create Custom Properties for WooCommerce integration.
+		 */
+		if ( Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) && Integrations::is_wc_active() ) {
+			foreach ( WooCommerce::CUSTOM_PROPERTIES as $property ) {
+				$properties[] = new Client\Model\CustomProp( [ 'custom_prop' => [ 'key' => $property ] ] );
+			}
 		}
 
 		$create_request->setCustomProps( $properties );

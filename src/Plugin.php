@@ -40,10 +40,13 @@ final class Plugin {
 			new Admin\Provisioning();
 		}
 
+		if ( Helpers::is_enhanced_measurement_enabled( 'revenue' ) ) {
+			new Integrations();
+		}
+
 		new Actions();
 		new Ajax();
 		new Compatibility();
-		new ECommerce();
 		new Filters();
 		new Proxy();
 		new Setup();
