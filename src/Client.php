@@ -71,9 +71,10 @@ class Client {
 	 * @return bool
 	 */
 	public function is_api_token_valid() {
-		$token = $this->api_instance->getConfig()->getPassword();
+		$token        = $this->api_instance->getConfig()->getPassword();
+		$valid_tokens = get_transient( 'plausible_analytics_valid_token' );
 
-		return ! empty( get_transient( 'plausible_analytics_valid_token' )[ $token ] );
+		return isset( $valid_tokens[ $token ] ) && $valid_tokens[ $token ] === true;
 	}
 
 	/**
