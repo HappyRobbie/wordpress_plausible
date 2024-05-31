@@ -286,6 +286,17 @@ class Helpers {
 	public static function get_domain() {
 		$settings = self::get_settings();
 
+		/**
+		 * If this is an AJAX request, make sure the latest settings are used.
+		 */
+		if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] === 'plausible_analytics_save_options' ) {
+			$settings = json_decode( str_replace( '\\', '', $_POST[ 'options' ] ) );
+
+			foreach ( $settings as $setting ) {
+				$settings[ $setting->name ] = $setting->value;
+			}
+		}
+
 		if ( ! empty( $settings[ 'domain_name' ] ) ) {
 			return $settings[ 'domain_name' ];
 		}
