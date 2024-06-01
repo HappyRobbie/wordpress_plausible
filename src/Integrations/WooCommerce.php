@@ -21,6 +21,8 @@ class WooCommerce {
 		'cart_total',
 		'cart_total_items',
 		'customer_id',
+		'id',
+		'name',
 		'order_id',
 		'price',
 		'product_id',
