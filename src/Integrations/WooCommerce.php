@@ -21,11 +21,10 @@ class WooCommerce {
 		'cart_total',
 		'cart_total_items',
 		'customer_id',
-		'id',
-		'name',
 		'order_id',
 		'price',
 		'product_id',
+		'product_name',
 		'quantity',
 		'shipping',
 		'subtotal',
@@ -76,6 +75,7 @@ class WooCommerce {
 		 */
 		add_filter( 'woocommerce_after_add_to_cart_form', [ $this, 'track_add_to_cart_on_product_page' ] );
 		add_filter( 'woocommerce_store_api_validate_add_to_cart', [ $this, 'track_add_to_cart' ], 10, 2 );
+		add_filter( 'woocommerce_ajax_added_to_cart', [ $this, 'track_ajax_add_to_cart' ] );
 		add_action( 'woocommerce_remove_cart_item', [ $this, 'track_remove_cart_item' ], 10, 2 );
 		add_action( 'wp_head', [ $this, 'track_entered_checkout' ] );
 		add_action( 'woocommerce_thankyou', [ $this, 'track_purchase' ] );
@@ -146,6 +146,25 @@ class WooCommerce {
 	}
 
 	/**
+	 * Track (non-Interactivity API, i.e. AJAX) add to cart events.
+	 *
+	 * @param string|int $product_id ID of the product added to the cart.
+	 *
+	 * @return void
+	 */
+	public function track_ajax_add_to_cart( $product_id ) {
+		$product          = wc_get_product( $product_id );
+		$add_to_cart_data = [
+			'id'       => $product_id,
+			'quantity' => $_POST[ 'quantity' ] ?? 1,
+		];
+
+		$this->track_add_to_cart( $product, $add_to_cart_data );
+	}
+
+	/**
+	 * Track regular (i.e. interactivity API) add to cart events.
+	 *
 	 * @param WC_Product $product          General information about the product added to cart.
 	 * @param array      $add_to_cart_data Cart data for the product added to the cart, e.g. quantity, variation ID, etc.
 	 *
