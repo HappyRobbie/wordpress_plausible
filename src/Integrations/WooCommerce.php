@@ -120,7 +120,9 @@ class WooCommerce {
 	}
 
 	/**
-	 * A hacky approach (with lack of a proper solution) to make sure Add To Cart events are tracked on simple product pages.
+	 * A hacky approach (with lack of a proper solution) to make sure Add To Cart events are tracked on simple product pages. Unfortunately, cart
+	 * information isn't available this way.
+	 *
 	 *
 	 * @return void
 	 */
