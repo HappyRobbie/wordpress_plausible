@@ -278,16 +278,9 @@ class WooCommerce {
 			return;
 		}
 
-		$props = apply_filters(
-			'plausible_analytics_woocommerce_purchase_custom_properties',
-			[
-				'transaction_id' => $order->get_transaction_id(),
-			]
-		);
 		$props = wp_json_encode(
 			[
 				'revenue' => [ 'amount' => number_format_i18n( $order->get_total(), 2 ), 'currency' => $order->get_currency() ],
-				'props'   => $props,
 			]
 		);
 		$label = $this->event_goals[ 'purchase' ];
