@@ -20,10 +20,8 @@ class WooCommerce {
 	const CUSTOM_PROPERTIES         = [
 		'cart_total',
 		'cart_total_items',
-		'customer_id',
 		'id',
 		'name',
-		'order_id',
 		'price',
 		'product_id',
 		'product_name',
@@ -245,22 +243,20 @@ class WooCommerce {
 			return;
 		}
 
-		$session = WC()->session;
-		$cart    = WC()->cart;
-		$props   = apply_filters(
+		$cart  = WC()->cart;
+		$props = apply_filters(
 			'plausible_analytics_woocommerce_entered_checkout_custom_properties',
 			[
 				'props' => [
-					'customer_id' => $session->get_customer_id(),
-					'subtotal'    => $cart->get_subtotal(),
-					'shipping'    => $cart->get_shipping_total(),
-					'tax'         => $cart->get_total_tax(),
-					'total'       => $cart->get_total( null ),
+					'subtotal' => $cart->get_subtotal(),
+					'shipping' => $cart->get_shipping_total(),
+					'tax'      => $cart->get_total_tax(),
+					'total'    => $cart->get_total( null ),
 				],
 			]
 		);
-		$props   = wp_json_encode( $props );
-		$label   = $this->event_goals[ 'checkout' ];
+		$props = wp_json_encode( $props );
+		$label = $this->event_goals[ 'checkout' ];
 
 		echo sprintf( Integrations::SCRIPT_WRAPPER, "window.plausible( '$label', $props )" );
 	}
@@ -284,8 +280,6 @@ class WooCommerce {
 			'plausible_analytics_woocommerce_purchase_custom_properties',
 			[
 				'transaction_id' => $order->get_transaction_id(),
-				'order_id'       => $order_id,
-				'customer_id'    => $order->get_customer_id(),
 			]
 		);
 		$props = wp_json_encode(
