@@ -262,7 +262,7 @@ class Helpers {
 
 		$url = home_url();
 
-		return preg_replace( '/^http(s?)\:\/\/(www\.)?/i', '', $url );
+		return preg_replace( '/^http(s?):\/\/(www\.)?/i', '', $url );
 	}
 
 	/**
