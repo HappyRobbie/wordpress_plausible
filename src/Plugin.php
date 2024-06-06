@@ -41,7 +41,7 @@ final class Plugin {
 		}
 
 		if ( Helpers::is_enhanced_measurement_enabled( 'revenue' ) ) {
-			new Integrations();
+			new Integrations(); // @codeCoverageIgnore
 		}
 
 		new Actions();

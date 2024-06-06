@@ -116,7 +116,7 @@ class Proxy {
 		];
 
 		if ( ! empty( $props ) ) {
-			$body[ 'p' ] = $props;
+			$body[ 'p' ] = $props; // @codeCoverageIgnore
 		}
 
 		$request->set_body( wp_json_encode( $body ) );
@@ -189,6 +189,8 @@ class Proxy {
 	 * Register the API route.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we have no way of knowing if the API works in integration tests.
 	 */
 	public function register_route() {
 		register_rest_route(
@@ -214,6 +216,8 @@ class Proxy {
 	 * @param WP_REST_Request  $request
 	 *
 	 * @return WP_HTTP_Response
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function force_http_response_code( $response, $server, $request ) {
 		if ( strpos( $request->get_route(), $this->namespace ) === false ) {

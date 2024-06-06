@@ -204,7 +204,7 @@ class Helpers {
 		}
 
 		if ( ! is_array( $enhanced_measurements ) ) {
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		return in_array( $name, $enhanced_measurements );

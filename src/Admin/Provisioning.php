@@ -206,7 +206,7 @@ class Provisioning {
 	 */
 	public function maybe_create_woocommerce_goals( $old_settings, $settings ) {
 		if ( ! Helpers::is_enhanced_measurement_enabled( 'revenue', $settings[ 'enhanced_measurements' ] ) || ! Integrations::is_wc_active() ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$goals       = [];
