@@ -90,7 +90,7 @@ class Actions {
 				[
 					'props' => [
 						'search_query' => get_search_query(),
-						'result_count' => intval( $wp_query->found_posts ),
+						'result_count' => $wp_query->found_posts,
 					],
 				]
 			);
