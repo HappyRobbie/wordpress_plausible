@@ -271,10 +271,11 @@ class Helpers {
 	 * @since  1.2.2
 	 * @access public
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function get_data_api_url() {
 		if ( self::proxy_enabled() ) {
-			// This'll make sure the API endpoint is properly registered when we're testing.
+			// This will make sure the API endpoint is properly registered when we're testing.
 			$append = isset( $_GET[ 'plausible_proxy' ] ) ? '?plausible_proxy=1' : '';
 
 			return self::get_rest_endpoint() . $append;
