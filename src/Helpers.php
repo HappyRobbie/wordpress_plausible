@@ -63,12 +63,16 @@ class Helpers {
 		if ( ! self::is_enhanced_measurement_enabled( 'tagged-events' ) &&
 			self::is_enhanced_measurement_enabled( 'revenue' ) &&
 			( Integrations::is_wc_active() || Integrations::is_edd_active() ) ) {
-			$file_name .= '.' . 'tagged-events';
+			$file_name .= '.tagged-events';
+		}
+
+		if ( ! self::is_enhanced_measurement_enabled( 'pageview-props' ) && self::is_enhanced_measurement_enabled( 'search' ) ) {
+			$file_name .= '.pageview-props';
 		}
 
 		// Load exclusions.js if any excluded pages are set.
 		if ( ! empty( $settings[ 'excluded_pages' ] ) ) {
-			$file_name .= '.' . 'exclusions';
+			$file_name .= '.exclusions';
 		}
 
 		// Add the manual scripts as we need it to track the search parameter.

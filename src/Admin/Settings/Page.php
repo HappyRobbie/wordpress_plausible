@@ -153,6 +153,13 @@ class Page extends API {
 							'type'  => 'checkbox',
 							'value' => 'file-downloads',
 						],
+						'search'         => [
+							'label' => esc_html__( 'Search queries', 'plausible-analytics' ),
+							'docs'  => 'https://plausible.io/wordpress-analytics-plugin#how-to-enable-site-search-tracking',
+							'slug'  => 'enhanced_measurements',
+							'type'  => 'checkbox',
+							'value' => 'search',
+						],
 						'tagged-events'  => [
 							'label' => esc_html__( 'Custom events', 'plausible-analytics' ),
 							'docs'  => 'https://plausible.io/wordpress-analytics-plugin#how-to-setup-custom-events-to-track-goal-conversions',
@@ -649,7 +656,7 @@ class Page extends API {
 			<div id="plausible-analytics-stats">
 				<iframe plausible-embed=""
 						src="<?php echo "{$shared_link}&embed=true&theme=light&background=transparent"; ?>"
-						scrolling="no" loading="lazy" style="border: 0; width: 100%; height: 1750px; "></iframe>
+						loading="lazy" style="border: 0; width: 100%; height: 1750px; "></iframe>
 				<script async src="<?php echo $hosted_domain; ?>/js/embed.host.js"></script>
 				<script>
 					document.addEventListener('DOMContentLoaded', () => {
