@@ -13,6 +13,10 @@
 namespace Plausible\Analytics\WP;
 
 use Exception;
+use WP_Error;
+use WP_HTTP_Response;
+use WP_REST_Request;
+use WP_REST_Server;
 
 class Proxy {
 	/**
@@ -56,12 +60,12 @@ class Proxy {
 	 * @return void
 	 * @throws Exception
 	 */
-	public function __construct() {
+	public function __construct( $init = true ) {
 		$this->namespace = Helpers::get_proxy_resource( 'namespace' ) . '/v1';
 		$this->base      = Helpers::get_proxy_resource( 'base' );
 		$this->endpoint  = Helpers::get_proxy_resource( 'endpoint' );
 
-		$this->init();
+		$this->init( $init );
 	}
 
 	/**
@@ -69,7 +73,11 @@ class Proxy {
 	 *
 	 * @return void
 	 */
-	private function init() {
+	private function init( $init ) {
+		if ( ! $init ) {
+			return;
+		}
+
 		$settings = [];
 
 		if ( array_key_exists( 'option_name', $_POST ) &&
@@ -83,33 +91,45 @@ class Proxy {
 		if ( Helpers::proxy_enabled( $settings ) ) {
 			add_action( 'rest_api_init', [ $this, 'register_route' ] );
 		}
+
+		add_filter( 'rest_post_dispatch', [ $this, 'force_http_response_code' ], null, 3 );
 	}
 
 	/**
-	 * Register the API route.
+	 * A public wrapper to programmatically send hits to the Plausible API.
 	 *
-	 * @return void
+	 * @see https://plausible.io/docs/events-api
+	 *
+	 * @param string $name   Name of the event, defaults to 'pageview', all other names are treated as custom events by the API.
+	 * @param string $domain Domain of the site in Plausible where the event should be registered.
+	 * @param string $url    URL of the page where the event was triggered.
+	 * @param array  $props  Custom properties for the event.
+	 *
+	 * @return array|WP_Error
 	 */
-	public function register_route() {
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->base . '/' . $this->endpoint,
-			[
-				[
-					'methods'             => 'POST',
-					'callback'            => [ $this, 'send' ],
-					// There's no reason not to allow access to this API.
-					'permission_callback' => '__return_true',
-				],
-				'schema' => null,
-			]
-		);
+	public function do_request( $name = 'pageview', $domain = '', $url = '', $props = [] ) {
+		$request = new \WP_REST_Request( 'POST', "/$this->namespace/v1/$this->base/$this->endpoint" );
+		$body    = [
+			'n' => $name,
+			'd' => $domain ?: Helpers::get_domain(),
+			'u' => $url ?: wp_get_referer(),
+		];
+
+		if ( ! empty( $props ) ) {
+			$body[ 'p' ] = $props;
+		}
+
+		$request->set_body( wp_json_encode( $body ) );
+
+		return $this->send_event( $request );
 	}
 
 	/**
-	 * @return array|\WP_Error
+	 * Formats and sends $request to the Plausible API.
+	 *
+	 * @return array|WP_Error
 	 */
-	public function send( $request ) {
+	public function send_event( $request ) {
 		$params = $request->get_body();
 
 		$ip  = $this->get_user_ip_address();
@@ -163,5 +183,46 @@ class Proxy {
 	 */
 	private function header_exists( $global ) {
 		return ! empty( $_SERVER[ $global ] );
+	}
+
+	/**
+	 * Register the API route.
+	 *
+	 * @return void
+	 */
+	public function register_route() {
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->base . '/' . $this->endpoint,
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'send_event' ],
+					// There's no reason not to allow access to this API.
+					'permission_callback' => '__return_true',
+				],
+				'schema' => null,
+			]
+		);
+	}
+
+	/**
+	 * Make sure our response code is returned, instead of the default 200 on success.
+	 *
+	 * @param WP_HTTP_Response $response
+	 * @param WP_REST_Server   $server
+	 * @param WP_REST_Request  $request
+	 *
+	 * @return WP_HTTP_Response
+	 */
+	public function force_http_response_code( $response, $server, $request ) {
+		if ( strpos( $request->get_route(), $this->namespace ) === false ) {
+			return $response; // @codeCoverageIgnore
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response->get_data() );
+		$response->set_status( $response_code );
+
+		return $response;
 	}
 }
