@@ -10,6 +10,9 @@
 
 namespace Plausible\Analytics\WP;
 
+/**
+ * @codeCoverageIgnore Because the code is very straight-forward.
+ */
 class Integrations {
 	const SCRIPT_WRAPPER = '<script defer id="plausible-analytics-integration-tracking">document.addEventListener("DOMContentLoaded", () => { %s });</script>';
 
