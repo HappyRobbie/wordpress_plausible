@@ -73,6 +73,25 @@ class Actions {
 			);
 		}
 
+		// Track search results. Tracks a search event with the search term and the number of results, and a pageview with the site's search URL.
+		if ( apply_filters( 'plausible_analytics_track_search', true ) && is_search() ) {
+			global $wp_rewrite, $wp_query;
+
+			$search_url = str_replace( '%search%', '', get_site_url( null, $wp_rewrite->get_search_permastruct() ) );
+			$data       = wp_json_encode(
+				[
+					'props' => [
+						'keyword'     => get_search_query(),
+						'resultCount' => intval( $wp_query->found_posts ),
+					],
+				]
+			);
+			$script     = 'plausible( "pageview", { u: "' . esc_attr( $search_url ) . '" } );';
+			$script     .= "\n" . "plausible( 'Search', $data );";
+
+			wp_add_inline_script( 'plausible-analytics', $script );
+		}
+
 		// This action allows you to add your own custom scripts!
 		do_action( 'plausible_analytics_after_register_assets', $settings );
 	}

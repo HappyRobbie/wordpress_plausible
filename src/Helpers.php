@@ -62,6 +62,11 @@ class Helpers {
 			$file_name .= '.' . 'exclusions';
 		}
 
+		// Add the manual scripts as we need it to track the search parameter.
+		if ( is_search() ) {
+			$file_name .= '.manual';
+		}
+
 		return $file_name;
 	}
 
