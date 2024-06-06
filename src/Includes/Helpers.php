@@ -16,21 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Helpers {
-
-	/**
-	 * Get Plain Domain (without protocol or www. subdomain)
-	 *
-	 * @since  1.0.0
-	 * @access public
-	 *
-	 * @return string
-	 */
-	public static function get_domain() {
-		$url = home_url();
-
-		return preg_replace( '/^http(s?)\:\/\/(www\.)?/i', '', $url );
-	}
-
 	/**
 	 * Get Analytics URL.
 	 *
@@ -46,13 +31,13 @@ class Helpers {
 		$file_name      = 'plausible';
 
 		foreach ( [ 'outbound-links', 'file-downloads', 'tagged-events', 'compat', 'hash' ] as $extension ) {
-			if ( in_array( $extension, $settings['enhanced_measurements'], true ) ) {
+			if ( in_array( $extension, $settings[ 'enhanced_measurements' ], true ) ) {
 				$file_name .= '.' . $extension;
 			}
 		}
 
 		// Load exclusions.js if any excluded pages are set.
-		if ( ! empty( $settings['excluded_pages'] ) ) {
+		if ( ! empty( $settings[ 'excluded_pages' ] ) ) {
 			$file_name .= '.' . 'exclusions';
 		}
 
@@ -63,11 +48,8 @@ class Helpers {
 		}
 
 		// Triggered when self-hosted analytics is enabled.
-		if (
-			! empty( $settings['self_hosted_domain'] )
-			&& $domain === $default_domain
-		) {
-			$domain = $settings['self_hosted_domain'];
+		if ( ! empty( $settings[ 'self_hosted_domain' ] ) && $domain === $default_domain ) {
+			$domain = $settings[ 'self_hosted_domain' ];
 		}
 
 		if ( is_search() ) {
@@ -78,42 +60,6 @@ class Helpers {
 		$url = "https://{$domain}/js/{$file_name}.js";
 
 		return esc_url( $url );
-	}
-
-	/**
-	 * Get Dashboard URL.
-	 *
-	 * @since  1.0.0
-	 * @access public
-	 *
-	 * @return string
-	 */
-	public static function get_analytics_dashboard_url() {
-		$settings = self::get_settings();
-		$domain   = $settings['domain_name'];
-
-		return esc_url( "https://plausible.io/{$domain}" );
-	}
-
-	/**
-	 * Toggle Switch HTML Markup.
-	 *
-	 * @param string $name Name of the toggle switch.
-	 *
-	 * @since  1.0.0
-	 * @access public
-	 *
-	 * @return void
-	 */
-	public static function display_toggle_switch( $name ) {
-		$settings            = Helpers::get_settings();
-		$individual_settings = ! empty( $settings[ $name ] ) ? esc_html( $settings[ $name ] ) : '';
-		?>
-		<label class="plausible-analytics-switch">
-			<input <?php checked( $individual_settings, 'true' ); ?> class="plausible-analytics-switch-checkbox" name="plausible_analytics_settings[<?php echo esc_attr( $name ); ?>]" value="1" type="checkbox"/>
-			<span class="plausible-analytics-switch-slider"></span>
-		</label>
-		<?php
 	}
 
 	/**
@@ -142,6 +88,57 @@ class Helpers {
 	}
 
 	/**
+	 * Get Dashboard URL.
+	 *
+	 * @since  1.0.0
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public static function get_analytics_dashboard_url() {
+		$domain = Helpers::get_domain();
+
+		return esc_url( "https://plausible.io/{$domain}" );
+	}
+
+	/**
+	 * Get Plain Domain (without protocol or www. subdomain)
+	 *
+	 * @since  1.0.0
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public static function get_domain() {
+		$url = home_url();
+
+		return preg_replace( '/^http(s?)\:\/\/(www\.)?/i', '', $url );
+	}
+
+	/**
+	 * Toggle Switch HTML Markup.
+	 *
+	 * @since  1.0.0
+	 * @access public
+	 *
+	 * @param string $name Name of the toggle switch.
+	 *
+	 * @return void
+	 */
+	public static function display_toggle_switch( $name ) {
+		$settings            = Helpers::get_settings();
+		$individual_settings = ! empty( $settings[ $name ] ) ? esc_html( $settings[ $name ] ) : '';
+		?>
+		<label class="plausible-analytics-switch">
+			<input <?php checked( $individual_settings, 'true' ); ?> class="plausible-analytics-switch-checkbox"
+																	 name="plausible_analytics_settings[<?php echo esc_attr( $name ); ?>]" value="1"
+																	 type="checkbox"/>
+			<span class="plausible-analytics-switch-slider"></span>
+		</label>
+		<?php
+	}
+
+	/**
 	 * Get Data API URL.
 	 *
 	 * @since  1.2.2
@@ -154,14 +151,52 @@ class Helpers {
 		$url      = 'https://plausible.io/api/event';
 
 		// Triggered when self hosted analytics is enabled.
-		if (
-			! empty( $settings['self_hosted_domain'] )
-		) {
-			$default_domain = $settings['self_hosted_domain'];
+		if ( ! empty( $settings[ 'self_hosted_domain' ] ) ) {
+			$default_domain = $settings[ 'self_hosted_domain' ];
 			$url            = "https://{$default_domain}/api/event";
 		}
 
 		return esc_url( $url );
+	}
+
+	/**
+	 * Render Quick Actions
+	 *
+	 * @since  1.3.0
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public static function render_quick_actions() {
+		ob_start();
+		$quick_actions = self::get_quick_actions();
+		?>
+		<div class="plausible-analytics-quick-actions">
+			<?php
+			if ( ! empty( $quick_actions ) && count( $quick_actions ) > 0 ) {
+				?>
+				<div class="plausible-analytics-quick-actions-title">
+					<?php esc_html_e( 'Quick Links', 'plausible-analytics' ); ?>
+				</div>
+				<ul>
+					<?php
+					foreach ( $quick_actions as $quick_action ) {
+						?>
+						<li>
+							<a target="_blank" href="<?php echo $quick_action[ 'url' ]; ?>" title="<?php echo $quick_action[ 'label' ]; ?>">
+								<?php echo $quick_action[ 'label' ]; ?>
+							</a>
+						</li>
+						<?php
+					}
+					?>
+				</ul>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -190,53 +225,13 @@ class Helpers {
 	}
 
 	/**
-	 * Render Quick Actions
-	 *
-	 * @since  1.3.0
-	 * @access public
-	 *
-	 * @return string
-	 */
-	public static function render_quick_actions() {
-		ob_start();
-		$quick_actions = self::get_quick_actions();
-		?>
-		<div class="plausible-analytics-quick-actions">
-		<?php
-		if ( ! empty( $quick_actions ) && count( $quick_actions ) > 0 ) {
-			?>
-			<div class="plausible-analytics-quick-actions-title">
-				<?php esc_html_e( 'Quick Links', 'plausible-analytics' ); ?>
-			</div>
-			<ul>
-			<?php
-			foreach ( $quick_actions as $quick_action ) {
-				?>
-				<li>
-					<a target="_blank" href="<?php echo $quick_action['url']; ?>" title="<?php echo $quick_action['label']; ?>">
-						<?php echo $quick_action['label']; ?>
-					</a>
-				</li>
-				<?php
-			}
-			?>
-			</ul>
-			<?php
-		}
-		?>
-		</div>
-		<?php
-		return ob_get_clean();
-	}
-
-	/**
 	 * Clean variables using `sanitize_text_field`.
 	 * Arrays are cleaned recursively. Non-scalar values are ignored.
 	 *
-	 * @param string|array $var Sanitize the variable.
-	 *
 	 * @since  1.3.0
 	 * @access public
+	 *
+	 * @param string|array $var Sanitize the variable.
 	 *
 	 * @return string|array
 	 */
