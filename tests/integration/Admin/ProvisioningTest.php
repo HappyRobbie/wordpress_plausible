@@ -54,6 +54,7 @@ class ProvisioningTest extends TestCase {
 			'404',
 			'outbound-links',
 			'file-downloads',
+			'search',
 		];
 		$mock                                = $this->getMockBuilder( Client::class )->onlyMethods( [ 'create_goals' ] )->getMock();
 		$goals_array                         = [
@@ -75,6 +76,12 @@ class ProvisioningTest extends TestCase {
 					'goal_type' => 'Goal.CustomEvent',
 				]
 			),
+			new Goal(
+				[
+					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Search', 'id' => 444, 'path' => null ] ),
+					'goal_type' => 'Goal.Pageview',
+				]
+			),
 		];
 		$goals                               = new Client\Model\GoalListResponse();
 
@@ -88,10 +95,11 @@ class ProvisioningTest extends TestCase {
 
 		$goal_ids = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 
-		$this->assertCount( 3, $goal_ids );
+		$this->assertCount( 4, $goal_ids );
 		$this->assertArrayHasKey( 111, $goal_ids );
 		$this->assertArrayHasKey( 222, $goal_ids );
 		$this->assertArrayHasKey( 333, $goal_ids );
+		$this->assertArrayHasKey( 444, $goal_ids );
 
 		delete_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 	}
