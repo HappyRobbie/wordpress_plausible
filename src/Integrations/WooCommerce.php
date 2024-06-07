@@ -113,7 +113,7 @@ class WooCommerce {
 	 *
 	 * @return mixed
 	 *
-	 * @codeCoverageIgnore
+	 * @codeCoverageIgnore Because there's nothing to test here.
 	 */
 	public function add_http_referer( $add_to_cart_data, $request ) {
 		$http_referer = $request->get_param( '_wp_http_referer' );
