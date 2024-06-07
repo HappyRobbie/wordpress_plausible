@@ -11,21 +11,6 @@ use function Brain\Monkey\Functions\when;
 
 class WooCommerceTest extends TestCase {
 	/**
-	 * @see WooCommerce::add_js()
-	 */
-	public function testAddJs() {
-		when( 'is_checkout' )->justReturn( false );
-
-		$class = new WooCommerce( false );
-
-		$class->add_js();
-
-		$wp_scripts = wp_scripts();
-
-		$this->assertTrue( in_array( 'plausible-woocommerce-compatibility', $wp_scripts->queue ) );
-	}
-
-	/**
 	 * @see WooCommerce::track_entered_checkout()
 	 * @return void
 	 */

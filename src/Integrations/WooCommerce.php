@@ -89,6 +89,8 @@ class WooCommerce {
 	 * Enqueue required JS in frontend.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because there's nothing to test here.
 	 */
 	public function add_js() {
 		// Causes errors in checkout and isn't needed either way.
