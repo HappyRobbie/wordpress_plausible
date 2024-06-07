@@ -42,6 +42,8 @@ class WooCommerce {
 
 	/**
 	 * Build class.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function __construct( $init = true ) {
 		$this->event_goals = [
@@ -58,6 +60,8 @@ class WooCommerce {
 	 * Filter and action hooks.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function init( $init ) {
 		if ( ! $init ) {
@@ -89,7 +93,7 @@ class WooCommerce {
 	public function add_js() {
 		// Causes errors in checkout and isn't needed either way.
 		if ( is_checkout() ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		wp_enqueue_script(
@@ -108,6 +112,8 @@ class WooCommerce {
 	 * @param $request
 	 *
 	 * @return mixed
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function add_http_referer( $add_to_cart_data, $request ) {
 		$http_referer = $request->get_param( '_wp_http_referer' );
@@ -123,8 +129,9 @@ class WooCommerce {
 	 * A hacky approach (with lack of a proper solution) to make sure Add To Cart events are tracked on simple product pages. Unfortunately, cart
 	 * information isn't available this way.
 	 *
-	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we're not testing JS here.
 	 */
 	public function track_add_to_cart_on_product_page() {
 		$product = wc_get_product();
@@ -153,6 +160,8 @@ class WooCommerce {
 	 * @param string|int $product_id ID of the product added to the cart.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because this function returns nothing.
 	 */
 	public function track_ajax_add_to_cart( $product_id ) {
 		$product          = wc_get_product( $product_id );
@@ -171,6 +180,8 @@ class WooCommerce {
 	 * @param array      $add_to_cart_data Cart data for the product added to the cart, e.g. quantity, variation ID, etc.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because this function returns nothing.
 	 */
 	public function track_add_to_cart( $product, $add_to_cart_data ) {
 		$product_data  = $this->clean_data( $product->get_data() );
@@ -199,6 +210,8 @@ class WooCommerce {
 	 * @param array $product Product Data.
 	 *
 	 * @return mixed
+	 *
+	 * @codeCoverageIgnore Because it can't be tested.
 	 */
 	private function clean_data( $product ) {
 		foreach ( $product as $key => $value ) {
@@ -217,6 +230,8 @@ class WooCommerce {
 	 * @param WC_Cart $cart          Instance of the current cart.
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore because we can't test XHR requests here.
 	 */
 	public function track_remove_cart_item( $cart_item_key, $cart ) {
 		$cart_contents          = $cart->get_cart_contents();
@@ -240,12 +255,15 @@ class WooCommerce {
 	/**
 	 * @return void
 	 */
-	public function track_entered_checkout() {
+	public function track_entered_checkout( $cart = null ) {
 		if ( ! is_checkout() ) {
 			return;
 		}
 
-		$cart  = WC()->cart;
+		if ( ! $cart ) {
+			$cart = WC()->cart;
+		}
+
 		$props = apply_filters(
 			'plausible_analytics_woocommerce_entered_checkout_custom_properties',
 			[
