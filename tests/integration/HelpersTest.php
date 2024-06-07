@@ -5,6 +5,7 @@
 
 namespace Plausible\Analytics\Tests\Integration;
 
+use Exception;
 use Plausible\Analytics\Tests\TestCase;
 use Plausible\Analytics\WP\Helpers;
 
@@ -49,6 +50,7 @@ class HelpersTest extends TestCase {
 
 	/**
 	 * @see Helpers::get_filename()
+	 * @throws Exception
 	 */
 	public function testGetFilename() {
 		add_filter( 'plausible_analytics_settings', [ $this, 'addExcludedPages' ] );
@@ -74,6 +76,16 @@ class HelpersTest extends TestCase {
 		remove_filter( 'plausible_analytics_settings', [ $this, 'enableOutboundLinks' ] );
 
 		$this->assertEquals( 'plausible.outbound-links', $filename );
+
+		add_filter( 'plausible_analytics_settings', [ $this, 'enableRevenue' ] );
+		add_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
+
+		$filename = Helpers::get_filename();
+
+		remove_filter( 'plausible_analytics_settings', [ $this, 'enableRevenue' ] );
+		remove_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
+
+		$this->assertEquals( 'plausible.revenue.tagged-events', $filename );
 	}
 
 	/**
@@ -103,9 +115,36 @@ class HelpersTest extends TestCase {
 	}
 
 	/**
+	 * Enable Enhanced Measurements > Custom Events (Tagged Events)
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
+	public function enableRevenue( $settings ) {
+		$settings[ 'enhanced_measurements' ] = [ 'revenue' ];
+
+		return $settings;
+	}
+
+	/**
+	 * @see Helpers::get_settings()
+	 *
+	 * @return void
+	 */
+	public function testGetPostSettings() {
+		$_POST[ 'action' ]  = 'plausible_analytics_save_options';
+		$_POST[ 'options' ] = wp_json_encode( [ [ 'name' => 'test', 'value' => 'test' ] ] );
+
+		$settings = Helpers::get_settings();
+
+		$this->assertArrayHasKey( 'test', $settings );
+	}
+
+	/**
 	 * @see Helpers::get_proxy_resource()
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testGetProxyResource() {
 		$namespace = Helpers::get_proxy_resource( 'namespace' );
@@ -149,7 +188,7 @@ class HelpersTest extends TestCase {
 	/**
 	 * @see Helpers::get_js_path()
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testGetJsPath() {
 		add_filter( 'plausible_analytics_settings', [ $this, 'enableProxy' ] );
@@ -166,7 +205,7 @@ class HelpersTest extends TestCase {
 	/**
 	 * @see Helpers::download_file()
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testDownloadFile() {
 		Helpers::download_file( 'https://plausible.io/js/plausible.js', wp_get_upload_dir()[ 'basedir' ] . '/test.js' );
@@ -221,7 +260,7 @@ class HelpersTest extends TestCase {
 	/**
 	 * @see Helpers::get_rest_endpoint()
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testGetRestEndpoint() {
 		$endpoint = Helpers::get_rest_endpoint( false );
