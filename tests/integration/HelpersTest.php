@@ -86,6 +86,14 @@ class HelpersTest extends TestCase {
 		remove_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
 
 		$this->assertEquals( 'plausible.revenue.tagged-events', $filename );
+
+		add_filter( 'plausible_analytics_settings', [ $this, 'enableSearch' ] );
+
+		$filename = Helpers::get_filename();
+
+		$this->assertEquals( 'plausible.pageview-props.manual', $filename );
+
+		remove_filter( 'plausible_analytics_settings', [ $this, 'enablePageviewProps' ] );
 	}
 
 	/**
@@ -123,6 +131,19 @@ class HelpersTest extends TestCase {
 	 */
 	public function enableRevenue( $settings ) {
 		$settings[ 'enhanced_measurements' ] = [ 'revenue' ];
+
+		return $settings;
+	}
+
+	/**
+	 * Enable Enhanced Measurements > Search Queries
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
+	public function enableSearch( $settings ) {
+		$settings[ 'enhanced_measurements' ] = [ 'search' ];
 
 		return $settings;
 	}

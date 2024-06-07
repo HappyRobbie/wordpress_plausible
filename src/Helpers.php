@@ -67,7 +67,7 @@ class Helpers {
 		}
 
 		if ( ! self::is_enhanced_measurement_enabled( 'pageview-props' ) && self::is_enhanced_measurement_enabled( 'search' ) ) {
-			$file_name .= '.pageview-props';
+			$file_name .= '.pageview-props'; // @codeCoverageIgnore
 		}
 
 		// Load exclusions.js if any excluded pages are set.
@@ -76,8 +76,8 @@ class Helpers {
 		}
 
 		// Add the manual scripts as we need it to track the search parameter.
-		if ( is_search() ) {
-			$file_name .= '.manual';
+		if ( self::is_enhanced_measurement_enabled( 'search' ) ) {
+			$file_name .= '.manual'; // @codeCoverageIgnore
 		}
 
 		return $file_name;
