@@ -40,6 +40,10 @@ final class Plugin {
 			new Admin\Provisioning();
 		}
 
+		if ( Helpers::is_enhanced_measurement_enabled( 'revenue' ) ) {
+			new Integrations(); // @codeCoverageIgnore
+		}
+
 		new Actions();
 		new Ajax();
 		new Compatibility();

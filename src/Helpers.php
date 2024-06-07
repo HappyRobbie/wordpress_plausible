@@ -52,9 +52,18 @@ class Helpers {
 		}
 
 		foreach ( [ 'outbound-links', 'file-downloads', 'tagged-events', 'revenue', 'pageview-props', 'compat', 'hash' ] as $extension ) {
-			if ( is_array( $settings[ 'enhanced_measurements' ] ) && in_array( $extension, $settings[ 'enhanced_measurements' ], true ) ) {
+			if ( self::is_enhanced_measurement_enabled( $extension ) ) {
 				$file_name .= '.' . $extension;
 			}
+		}
+
+		/**
+		 * Custom Events needs to be enabled, if Revenue Tracking is enabled and any of the available integrations are available.
+		 */
+		if ( ! self::is_enhanced_measurement_enabled( 'tagged-events' ) &&
+			self::is_enhanced_measurement_enabled( 'revenue' ) &&
+			( Integrations::is_wc_active() || Integrations::is_edd_active() ) ) {
+			$file_name .= '.' . 'tagged-events';
 		}
 
 		// Load exclusions.js if any excluded pages are set.
@@ -89,6 +98,17 @@ class Helpers {
 		];
 
 		$settings = get_option( 'plausible_analytics_settings', [] );
+
+		/**
+		 * If this is an AJAX request, make sure the latest settings are used.
+		 */
+		if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] === 'plausible_analytics_save_options' ) {
+			$options = json_decode( str_replace( '\\', '', $_POST[ 'options' ] ) );
+
+			foreach ( $options as $option ) {
+				$settings[ $option->name ] = $option->value;
+			}
+		}
 
 		return apply_filters( 'plausible_analytics_settings', wp_parse_args( $settings, $defaults ) );
 	}
@@ -167,6 +187,27 @@ class Helpers {
 		}
 
 		return $resources;
+	}
+
+	/**
+	 * Check if a certain Enhanced Measurement is enabled.
+	 *
+	 * @param string $name                  Name of the option to check, valid values are
+	 *                                      404|outbound-links|file-downloads|tagged-events|revenue|pageview-props|hash|compat.
+	 * @param array  $enhanced_measurements Allows checking against a different set of options.
+	 *
+	 * @return bool
+	 */
+	public static function is_enhanced_measurement_enabled( $name, $enhanced_measurements = [] ) {
+		if ( empty( $enhanced_measurements ) ) {
+			$enhanced_measurements = Helpers::get_settings()[ 'enhanced_measurements' ];
+		}
+
+		if ( ! is_array( $enhanced_measurements ) ) {
+			return false; // @codeCoverageIgnore
+		}
+
+		return in_array( $name, $enhanced_measurements );
 	}
 
 	/**

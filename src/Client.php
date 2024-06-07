@@ -60,7 +60,12 @@ class Client {
 		$token       = $this->api_instance->getConfig()->getPassword();
 		$is_valid    = strpos( $token, 'plausible-plugin' ) !== false && ! empty( $features->getGoals() ) && $data_domain === Helpers::get_domain();
 
-		set_transient( 'plausible_analytics_valid_token', [ $token => $is_valid ], 86400 );
+		/**
+		 * Don't cache invalid API tokens.
+		 */
+		if ( $is_valid ) {
+			set_transient( 'plausible_analytics_valid_token', [ $token => true ], 86400 ); // @codeCoverageIgnore
+		}
 
 		return $is_valid;
 	}
@@ -71,9 +76,10 @@ class Client {
 	 * @return bool
 	 */
 	public function is_api_token_valid() {
-		$token = $this->api_instance->getConfig()->getPassword();
+		$token        = $this->api_instance->getConfig()->getPassword();
+		$valid_tokens = get_transient( 'plausible_analytics_valid_token' );
 
-		return ! empty( get_transient( 'plausible_analytics_valid_token' )[ $token ] );
+		return isset( $valid_tokens[ $token ] ) && $valid_tokens[ $token ] === true;
 	}
 
 	/**

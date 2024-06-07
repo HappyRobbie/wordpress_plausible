@@ -12,6 +12,7 @@ use Plausible\Analytics\WP\Client\ApiException;
 use Plausible\Analytics\WP\Client\Model\Goal;
 use Plausible\Analytics\WP\Client\Model\GoalPageviewAllOfGoal;
 use Plausible\Analytics\WP\Helpers;
+use function Brain\Monkey\Functions\when;
 
 class ProvisioningTest extends TestCase {
 	/**
@@ -45,11 +46,10 @@ class ProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * @see Provisioning::create_goals()
+	 * @see Provisioning::maybe_create_goals()
 	 * @throws ApiException
 	 */
 	public function testCreateGoals() {
-		$settings                            = [];
 		$settings[ 'enhanced_measurements' ] = [
 			'404',
 			'outbound-links',
@@ -84,7 +84,7 @@ class ProvisioningTest extends TestCase {
 
 		$class = new Provisioning( $mock );
 
-		$class->create_goals( [], $settings );
+		$class->maybe_create_goals( [], $settings );
 
 		$goal_ids = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 
@@ -92,5 +92,71 @@ class ProvisioningTest extends TestCase {
 		$this->assertArrayHasKey( 111, $goal_ids );
 		$this->assertArrayHasKey( 222, $goal_ids );
 		$this->assertArrayHasKey( 333, $goal_ids );
+
+		delete_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
+	}
+
+	/**
+	 * @see Provisioning::maybe_create_woocommerce_goals()
+	 * @return void
+	 * @throws ApiException
+	 */
+	public function testCreateWooCommerceGoals() {
+		$settings    = [
+			'enhanced_measurements' => [
+				'revenue',
+			],
+		];
+		$mock        = $this->getMockBuilder( Client::class )->onlyMethods( [ 'create_goals' ] )->getMock();
+		$goals_array = [
+			new Goal(
+				[
+					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Add Item To Cart', 'id' => 112, 'path' => null ] ),
+					'goal_type' => 'Goal.CustomEvent',
+				]
+			),
+			new Goal(
+				[
+					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Remove Cart Item', 'id' => 223, 'path' => null ] ),
+					'goal_type' => 'Goal.CustomEvent',
+				]
+			),
+			new Goal(
+				[
+					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Entered Checkout', 'id' => 334, 'path' => null ] ),
+					'goal_type' => 'Goal.CustomEvent',
+				]
+			),
+			new Goal(
+				[
+					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Purchase', 'id' => 445, 'path' => null ] ),
+					'goal_type' => 'Goal.Revenue',
+				]
+			),
+		];
+		$goals       = new Client\Model\GoalListResponse();
+
+		$goals->setGoals( $goals_array );
+		$goals->setMeta( new Client\Model\GoalListResponseMeta() );
+		$mock->method( 'create_goals' )->willReturn( $goals );
+
+		$class = new Provisioning( $mock );
+
+		add_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
+		when( 'get_woocommerce_currency' )->justReturn( 'EUR' );
+
+		$class->maybe_create_woocommerce_goals( [], $settings );
+
+		remove_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
+
+		$goal_ids = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
+
+		$this->assertCount( 4, $goal_ids );
+		$this->assertArrayHasKey( 112, $goal_ids );
+		$this->assertArrayHasKey( 223, $goal_ids );
+		$this->assertArrayHasKey( 334, $goal_ids );
+		$this->assertArrayHasKey( 445, $goal_ids );
+
+		delete_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 	}
 }
