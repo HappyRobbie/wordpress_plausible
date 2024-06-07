@@ -231,6 +231,8 @@ class Provisioning {
 	 * @param $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test the API.
 	 */
 	public function maybe_create_woocommerce_funnels( $old_settings, $settings ) {
 		if ( ! Helpers::is_enhanced_measurement_enabled( 'revenue', $settings[ 'enhanced_measurements' ] ) || ! Integrations::is_wc_active() ) {
@@ -261,7 +263,7 @@ class Provisioning {
 	 *
 	 * @return void
 	 *
-	 * @codeCoverageIgnore Because this method should be mocked in tests.
+	 * @codeCoverageIgnore Because this method should be mocked in tests if needed.
 	 */
 	private function create_funnel( $name, $steps ) {
 		$create_request = new Client\Model\FunnelCreateRequest(
