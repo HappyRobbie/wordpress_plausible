@@ -47,10 +47,10 @@ class WooCommerce {
 	 */
 	public function __construct( $init = true ) {
 		$this->event_goals = [
-			'add-to-cart'      => __( 'Add Item To Cart', 'plausible-analytics' ),
-			'remove-from-cart' => __( 'Remove Cart Item', 'plausible-analytics' ),
-			'checkout'         => __( 'Entered Checkout', 'plausible-analytics' ),
-			'purchase'         => __( 'Purchase', 'plausible-analytics' ),
+			'add-to-cart'      => __( 'Woo Add to Cart', 'plausible-analytics' ),
+			'remove-from-cart' => __( 'Woo Remove from Cart', 'plausible-analytics' ),
+			'checkout'         => __( 'Woo Start Checkout', 'plausible-analytics' ),
+			'purchase'         => __( 'Woo Complete Purchase', 'plausible-analytics' ),
 		];
 
 		$this->init( $init );

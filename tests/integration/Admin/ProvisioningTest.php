@@ -105,7 +105,7 @@ class ProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * @see Provisioning::maybe_create_woocommerce_goals()
+	 * @see Provisioning::maybe_create_woocommerce_funnels()
 	 * @return void
 	 * @throws ApiException
 	 */
@@ -153,7 +153,7 @@ class ProvisioningTest extends TestCase {
 		add_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
 		when( 'get_woocommerce_currency' )->justReturn( 'EUR' );
 
-		$class->maybe_create_woocommerce_goals( [], $settings );
+		$class->maybe_create_woocommerce_funnels( [], $settings );
 
 		remove_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
 
