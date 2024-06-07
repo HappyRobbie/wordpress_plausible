@@ -64,7 +64,7 @@ class Client {
 		 * Don't cache invalid API tokens.
 		 */
 		if ( $is_valid ) {
-			set_transient( 'plausible_analytics_valid_token', [ $token => true ], 86400 );
+			set_transient( 'plausible_analytics_valid_token', [ $token => true ], 86400 ); // @codeCoverageIgnore
 		}
 
 		return $is_valid;

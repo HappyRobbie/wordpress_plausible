@@ -11,6 +11,9 @@ namespace Plausible\Analytics\WP;
 
 use Exception;
 
+/**
+ * @codeCoverageIgnore Because this is to be tested in a headless browser.
+ */
 class Compatibility {
 	/**
 	 * A list of filters and actions to prevent our script from being manipulated by other plugins, known to cause issues.

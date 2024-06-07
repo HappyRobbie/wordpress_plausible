@@ -10,6 +10,9 @@
 
 namespace Plausible\Analytics\WP;
 
+/**
+ * @codeCoverageIgnore Because the code is very straight-forward.
+ */
 class Integrations {
 	const SCRIPT_WRAPPER = '<script defer id="plausible-analytics-integration-tracking">document.addEventListener("DOMContentLoaded", () => { %s });</script>';
 
@@ -43,7 +46,7 @@ class Integrations {
 	 * @return bool
 	 */
 	public static function is_wc_active() {
-		return function_exists( 'WC' );
+		return apply_filters( 'plausible_analytics_integrations_woocommerce', function_exists( 'WC' ) );
 	}
 
 	/**
@@ -52,6 +55,6 @@ class Integrations {
 	 * @return bool
 	 */
 	public static function is_edd_active() {
-		return function_exists( 'EDD' );
+		return apply_filters( 'plausible_analytics_integrations_edd', function_exists( 'EDD' ) );
 	}
 }
