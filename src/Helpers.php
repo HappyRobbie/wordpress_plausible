@@ -63,12 +63,21 @@ class Helpers {
 		if ( ! self::is_enhanced_measurement_enabled( 'tagged-events' ) &&
 			self::is_enhanced_measurement_enabled( 'revenue' ) &&
 			( Integrations::is_wc_active() || Integrations::is_edd_active() ) ) {
-			$file_name .= '.' . 'tagged-events';
+			$file_name .= '.tagged-events';
+		}
+
+		if ( ! self::is_enhanced_measurement_enabled( 'pageview-props' ) && self::is_enhanced_measurement_enabled( 'search' ) ) {
+			$file_name .= '.pageview-props'; // @codeCoverageIgnore
 		}
 
 		// Load exclusions.js if any excluded pages are set.
 		if ( ! empty( $settings[ 'excluded_pages' ] ) ) {
-			$file_name .= '.' . 'exclusions';
+			$file_name .= '.exclusions';
+		}
+
+		// Add the manual scripts as we need it to track the search parameter.
+		if ( self::is_enhanced_measurement_enabled( 'search' ) ) {
+			$file_name .= '.manual'; // @codeCoverageIgnore
 		}
 
 		return $file_name;
@@ -303,7 +312,7 @@ class Helpers {
 
 		$url = home_url();
 
-		return preg_replace( '/^http(s?)\:\/\/(www\.)?/i', '', $url );
+		return preg_replace( '/^http(s?):\/\/(www\.)?/i', '', $url );
 	}
 
 	/**
@@ -312,10 +321,11 @@ class Helpers {
 	 * @since  1.2.2
 	 * @access public
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function get_data_api_url() {
 		if ( self::proxy_enabled() ) {
-			// This'll make sure the API endpoint is properly registered when we're testing.
+			// This will make sure the API endpoint is properly registered when we're testing.
 			$append = isset( $_GET[ 'plausible_proxy' ] ) ? '?plausible_proxy=1' : '';
 
 			return self::get_rest_endpoint() . $append;

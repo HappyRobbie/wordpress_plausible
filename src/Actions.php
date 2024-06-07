@@ -66,11 +66,38 @@ class Actions {
 		);
 
 		// Track 404 pages (if enabled)
-		if ( is_array( $settings[ 'enhanced_measurements' ] ) && in_array( '404', $settings[ 'enhanced_measurements' ] ) && is_404() ) {
+		if ( Helpers::is_enhanced_measurement_enabled( '404' ) && is_404() ) {
+			$data = wp_json_encode(
+				[
+					'props' => [
+						'path' => 'documentation.location.pathname',
+					],
+				]
+			);
+
 			wp_add_inline_script(
 				'plausible-analytics',
-				"document.addEventListener('DOMContentLoaded', function () { plausible('404', { props: { path: document.location.pathname } }); });"
+				"document.addEventListener('DOMContentLoaded', function () { plausible( '404', $data ); });"
 			);
+		}
+
+		// Track search results. Tracks a search event with the search term and the number of results, and a pageview with the site's search URL.
+		if ( Helpers::is_enhanced_measurement_enabled( 'search' ) && is_search() ) {
+			global $wp_rewrite, $wp_query;
+
+			$search_url = str_replace( '%search%', '', get_site_url( null, $wp_rewrite->get_search_permastruct() ) );
+			$data       = wp_json_encode(
+				[
+					'props' => [
+						'search_query' => get_search_query(),
+						'result_count' => $wp_query->found_posts,
+					],
+				]
+			);
+			$script     = 'plausible("pageview", {u:"' . esc_attr( $search_url ) . '"});';
+			$script     .= "\nplausible('Search', $data );";
+
+			wp_add_inline_script( 'plausible-analytics', "document.addEventListener('DOMContentLoaded', function() {\n$script\n});" );
 		}
 
 		// This action allows you to add your own custom scripts!

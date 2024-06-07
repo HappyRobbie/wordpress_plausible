@@ -35,6 +35,11 @@ class Provisioning {
 		'category',
 	];
 
+	private $custom_search_properties = [
+		'search_query',
+		'result_count',
+	];
+
 	/**
 	 * Build class.
 	 *
@@ -63,6 +68,7 @@ class Provisioning {
 			'404'            => __( '404', 'plausible-analytics' ),
 			'outbound-links' => __( 'Outbound Link: Click', 'plausible-analytics' ),
 			'file-downloads' => __( 'File Download', 'plausible-analytics' ),
+			'search'         => __( 'Search', 'plausible-analytics' ),
 		];
 
 		$this->init();
@@ -140,6 +146,13 @@ class Provisioning {
 			}
 
 			$goals[] = $this->create_request_custom_event( $this->custom_event_goals[ $measurement ] );
+
+			if ( $measurement === 'search' ) {
+				global $wp_rewrite;
+
+				$search_url = str_replace( '%search%', '', $wp_rewrite->get_search_permastruct() );
+				$goals[]    = $this->create_request_custom_event( null, 'Pageview', '', $search_url );
+			}
 		}
 
 		$this->create_goals( $goals );
@@ -152,7 +165,7 @@ class Provisioning {
 	 *
 	 * @return GoalCreateRequestCustomEvent
 	 */
-	private function create_request_custom_event( $name, $type = 'CustomEvent', $currency = '' ) {
+	private function create_request_custom_event( $name, $type = 'CustomEvent', $currency = '', $path = '' ) {
 		$props = [
 			'goal'      => [
 				'event_name' => $name,
@@ -162,6 +175,12 @@ class Provisioning {
 
 		if ( $type === 'Revenue' ) {
 			$props[ 'goal' ][ 'currency' ] = $currency;
+		}
+
+		if ( $type === 'Pageview' ) {
+			unset( $props[ 'goal' ][ 'event_name' ] );
+
+			$props[ 'goal' ][ 'path' ] = $path;
 		}
 
 		return new Client\Model\GoalCreateRequestCustomEvent( $props );
@@ -267,7 +286,8 @@ class Provisioning {
 		$enhanced_measurements = $settings[ 'enhanced_measurements' ];
 
 		if ( ! Helpers::is_enhanced_measurement_enabled( 'pageview-props', $enhanced_measurements ) &&
-			! Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) ) {
+			! Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) &&
+			! Helpers::is_enhanced_measurement_enabled( 'search', $enhanced_measurements ) ) {
 			return; // @codeCoverageIgnore
 		}
 
@@ -288,6 +308,15 @@ class Provisioning {
 		 */
 		if ( Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) && Integrations::is_wc_active() ) {
 			foreach ( WooCommerce::CUSTOM_PROPERTIES as $property ) {
+				$properties[] = new Client\Model\CustomProp( [ 'custom_prop' => [ 'key' => $property ] ] );
+			}
+		}
+
+		/**
+		 * Create Custom Properties for Search Queries option.
+		 */
+		if ( Helpers::is_enhanced_measurement_enabled( 'search', $enhanced_measurements ) ) {
+			foreach ( $this->custom_search_properties as $property ) {
 				$properties[] = new Client\Model\CustomProp( [ 'custom_prop' => [ 'key' => $property ] ] );
 			}
 		}
