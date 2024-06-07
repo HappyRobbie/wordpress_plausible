@@ -17,7 +17,7 @@ class WooCommerceTest extends TestCase {
 	public function testTrackEnteredCheckout() {
 		when( 'is_checkout' )->justReturn( true );
 
-		$mock = $this->getMockBuilder( 'WC_Cart' )->setMethods(
+		$cart_mock = $this->getMockBuilder( 'WC_Cart' )->setMethods(
 			[
 				'get_subtotal',
 				'get_shipping_total',
@@ -26,13 +26,13 @@ class WooCommerceTest extends TestCase {
 			]
 		)->getMock();
 
-		$mock->method( 'get_subtotal' )->willReturn( 10 );
-		$mock->method( 'get_shipping_total' )->willReturn( 5 );
-		$mock->method( 'get_total_tax' )->willReturn( 1 );
-		$mock->method( 'get_total' )->willReturn( "16.00" );
+		$cart_mock->method( 'get_subtotal' )->willReturn( 10 );
+		$cart_mock->method( 'get_shipping_total' )->willReturn( 5 );
+		$cart_mock->method( 'get_total_tax' )->willReturn( 1 );
+		$cart_mock->method( 'get_total' )->willReturn( "16.00" );
 
 		$woo_mock       = $this->getMockBuilder( 'WooCommerce' )->getMock();
-		$woo_mock->cart = $mock;
+		$woo_mock->cart = $cart_mock;
 		when( 'WC' )->justReturn( $woo_mock );
 
 		$class = new WooCommerce( false );
