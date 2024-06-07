@@ -134,11 +134,11 @@ class HelpersTest extends TestCase {
 	 */
 	public function testGetPostSettings() {
 		$_POST[ 'action' ]  = 'plausible_analytics_save_options';
-		$_POST[ 'options' ] = wp_json_encode( [ [ 'name' => 'test', 'value' => 'test' ] ] );
+		$_POST[ 'options' ] = wp_json_encode( [ [ 'name' => 'post_test', 'value' => 'post_test' ] ] );
 
 		$settings = Helpers::get_settings();
 
-		$this->assertArrayHasKey( 'test', $settings );
+		$this->assertArrayHasKey( 'post_test', $settings );
 	}
 
 	/**
