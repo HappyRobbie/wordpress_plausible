@@ -257,14 +257,12 @@ class WooCommerce {
 	/**
 	 * @return void
 	 */
-	public function track_entered_checkout( $cart = null ) {
+	public function track_entered_checkout() {
 		if ( ! is_checkout() ) {
 			return;
 		}
 
-		if ( ! $cart ) {
-			$cart = WC()->cart;
-		}
+		$cart = WC()->cart;
 
 		$props = apply_filters(
 			'plausible_analytics_woocommerce_entered_checkout_custom_properties',

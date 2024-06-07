@@ -31,11 +31,15 @@ class WooCommerceTest extends TestCase {
 		$mock->method( 'get_total_tax' )->willReturn( 1 );
 		$mock->method( 'get_total' )->willReturn( "16.00" );
 
+		$woo_mock       = $this->getMockBuilder( 'WooCommerce' )->getMock();
+		$woo_mock->cart = $mock;
+		when( 'WC' )->justReturn( $woo_mock );
+
 		$class = new WooCommerce( false );
 
 		$this->expectOutputContains( '{"props":{"subtotal":10,"shipping":5,"tax":1,"total":"16.00"}}' );
 
-		$class->track_entered_checkout( $mock );
+		$class->track_entered_checkout();
 	}
 
 	/**
