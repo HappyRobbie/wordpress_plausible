@@ -12,6 +12,8 @@ namespace Plausible\Analytics\WP\Admin;
 use Plausible\Analytics\WP\Client;
 use Plausible\Analytics\WP\Client\ApiException;
 use Plausible\Analytics\WP\Client\Model\GoalCreateRequestCustomEvent;
+use Plausible\Analytics\WP\Client\Model\GoalCreateRequestPageview;
+use Plausible\Analytics\WP\Client\Model\GoalCreateRequestRevenue;
 use Plausible\Analytics\WP\Helpers;
 use Plausible\Analytics\WP\Integrations;
 use Plausible\Analytics\WP\Integrations\WooCommerce;
@@ -89,7 +91,7 @@ class Provisioning {
 
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_shared_link' ], 10, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_goals' ], 10, 2 );
-		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_woocommerce_goals' ], 10, 2 );
+		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_woocommerce_funnels' ], 10, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_goals' ], 11, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_custom_properties' ], 11, 2 );
 	}
@@ -145,13 +147,13 @@ class Provisioning {
 				continue; // @codeCoverageIgnore
 			}
 
-			$goals[] = $this->create_request_custom_event( $this->custom_event_goals[ $measurement ] );
+			$goals[] = $this->create_goal_request( $this->custom_event_goals[ $measurement ] );
 
 			if ( $measurement === 'search' ) {
 				global $wp_rewrite;
 
 				$search_url = str_replace( '%search%', '', $wp_rewrite->get_search_permastruct() );
-				$goals[]    = $this->create_request_custom_event( null, 'Pageview', '', $search_url );
+				$goals[]    = $this->create_goal_request( null, 'Pageview', '', $search_url );
 			}
 		}
 
@@ -163,9 +165,9 @@ class Provisioning {
 	 * @param string $type     CustomEvent|Revenue|Pageview
 	 * @param string $currency Required if $type is Revenue
 	 *
-	 * @return GoalCreateRequestCustomEvent
+	 * @return GoalCreateRequestCustomEvent|GoalCreateRequestPageview|GoalCreateRequestRevenue
 	 */
-	private function create_request_custom_event( $name, $type = 'CustomEvent', $currency = '', $path = '' ) {
+	public function create_goal_request( $name, $type = 'CustomEvent', $currency = '', $path = '' ) {
 		$props = [
 			'goal'      => [
 				'event_name' => $name,
@@ -183,7 +185,14 @@ class Provisioning {
 			$props[ 'goal' ][ 'path' ] = $path;
 		}
 
-		return new Client\Model\GoalCreateRequestCustomEvent( $props );
+		switch ( $type ) {
+			case 'Pageview':
+				return new Client\Model\GoalCreateRequestPageview( $props );
+			case 'Revenue':
+				return new Client\Model\GoalCreateRequestRevenue( $props );
+			default: // CustomEvent
+				return new Client\Model\GoalCreateRequestCustomEvent( $props );
+		}
 	}
 
 	/**
@@ -222,8 +231,10 @@ class Provisioning {
 	 * @param $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test the API.
 	 */
-	public function maybe_create_woocommerce_goals( $old_settings, $settings ) {
+	public function maybe_create_woocommerce_funnels( $old_settings, $settings ) {
 		if ( ! Helpers::is_enhanced_measurement_enabled( 'revenue', $settings[ 'enhanced_measurements' ] ) || ! Integrations::is_wc_active() ) {
 			return; // @codeCoverageIgnore
 		}
@@ -233,15 +244,38 @@ class Provisioning {
 
 		foreach ( $woocommerce->event_goals as $event_key => $event_goal ) {
 			if ( $event_key === 'purchase' ) {
-				$goals[] = $this->create_request_custom_event( $event_goal, 'Revenue', get_woocommerce_currency() );
+				$goals[] = $this->create_goal_request( $event_goal, 'Revenue', get_woocommerce_currency() );
 
 				continue;
 			}
 
-			$goals[] = $this->create_request_custom_event( $event_goal );
+			$goals[] = $this->create_goal_request( $event_goal );
 		}
 
-		$this->create_goals( $goals );
+		$this->create_funnel( __( 'Woo Purchase Funnel', 'plausible-analytics' ), $goals );
+	}
+
+	/**
+	 * Creates a funnel and creates goals if they don't exist.
+	 *
+	 * @param $name
+	 * @param $steps
+	 *
+	 * @return void
+	 *
+	 * @codeCoverageIgnore Because this method should be mocked in tests if needed.
+	 */
+	private function create_funnel( $name, $steps ) {
+		$create_request = new Client\Model\FunnelCreateRequest(
+			[
+				'funnel' => [
+					'name'  => $name,
+					'steps' => $steps,
+				],
+			]
+		);
+
+		$this->client->create_funnel( $create_request );
 	}
 
 	/**

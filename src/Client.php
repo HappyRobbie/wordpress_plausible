@@ -233,6 +233,23 @@ class Client {
 	}
 
 	/**
+	 * Allows creating Funnels in bulk.
+	 *
+	 * @param \Plausible\Analytics\WP\Client\Model\FunnelCreateRequest $funnel
+	 *
+	 * @return Client\Model\Funnel|PaymentRequiredError|UnauthorizedError|UnprocessableEntityError|void
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function create_funnel( $funnel ) {
+		try {
+			return $this->api_instance->plausibleWebPluginsAPIControllersFunnelsCreate( $funnel );
+		} catch ( Exception $e ) {
+			$this->send_json_error( $e, __( 'Something went wrong while creating Funnel: %s', 'plausible-analytics' ) );
+		}
+	}
+
+	/**
 	 * Delete a Custom Event Goal by ID.
 	 *
 	 * @param int $id

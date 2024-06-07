@@ -105,66 +105,22 @@ class ProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * @see Provisioning::maybe_create_woocommerce_goals()
+	 * @see Provisioning::create_goal_request()
 	 * @return void
-	 * @throws ApiException
 	 */
-	public function testCreateWooCommerceGoals() {
-		$settings    = [
-			'enhanced_measurements' => [
-				'revenue',
-			],
-		];
-		$mock        = $this->getMockBuilder( Client::class )->onlyMethods( [ 'create_goals' ] )->getMock();
-		$goals_array = [
-			new Goal(
-				[
-					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Add Item To Cart', 'id' => 112, 'path' => null ] ),
-					'goal_type' => 'Goal.CustomEvent',
-				]
-			),
-			new Goal(
-				[
-					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Remove Cart Item', 'id' => 223, 'path' => null ] ),
-					'goal_type' => 'Goal.CustomEvent',
-				]
-			),
-			new Goal(
-				[
-					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Entered Checkout', 'id' => 334, 'path' => null ] ),
-					'goal_type' => 'Goal.CustomEvent',
-				]
-			),
-			new Goal(
-				[
-					'goal'      => new GoalPageviewAllOfGoal( [ 'display_name' => 'Purchase', 'id' => 445, 'path' => null ] ),
-					'goal_type' => 'Goal.Revenue',
-				]
-			),
-		];
-		$goals       = new Client\Model\GoalListResponse();
+	public function testCreateGoalRequest() {
+		$class = new Provisioning( false );
 
-		$goals->setGoals( $goals_array );
-		$goals->setMeta( new Client\Model\GoalListResponseMeta() );
-		$mock->method( 'create_goals' )->willReturn( $goals );
+		$pageview = $class->create_goal_request( 'Test Pageview', 'Pageview', null, '/test' );
 
-		$class = new Provisioning( $mock );
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestPageview', $pageview );
 
-		add_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
-		when( 'get_woocommerce_currency' )->justReturn( 'EUR' );
+		$revenue = $class->create_goal_request( 'Test Revenue', 'Revenue', 'EUR' );
 
-		$class->maybe_create_woocommerce_goals( [], $settings );
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestRevenue', $revenue );
 
-		remove_filter( 'plausible_analytics_integrations_woocommerce', '__return_true' );
+		$custom_event = $class->create_goal_request( 'Test Custom Event' );
 
-		$goal_ids = get_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
-
-		$this->assertCount( 4, $goal_ids );
-		$this->assertArrayHasKey( 112, $goal_ids );
-		$this->assertArrayHasKey( 223, $goal_ids );
-		$this->assertArrayHasKey( 334, $goal_ids );
-		$this->assertArrayHasKey( 445, $goal_ids );
-
-		delete_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestCustomEvent', $custom_event );
 	}
 }
