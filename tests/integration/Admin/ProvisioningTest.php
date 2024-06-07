@@ -103,4 +103,24 @@ class ProvisioningTest extends TestCase {
 
 		delete_option( 'plausible_analytics_enhanced_measurements_goal_ids' );
 	}
+
+	/**
+	 * @see Provisioning::create_goal_request()
+	 * @return void
+	 */
+	public function testCreateGoalRequest() {
+		$class = new Provisioning( false );
+
+		$pageview = $class->create_goal_request( 'Test Pageview', 'Pageview', null, '/test' );
+
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestPageview', $pageview );
+
+		$revenue = $class->create_goal_request( 'Test Revenue', 'Revenue', 'EUR' );
+
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestRevenue', $revenue );
+
+		$custom_event = $class->create_goal_request( 'Test Custom Event' );
+
+		$this->assertInstanceOf( 'Plausible\Analytics\WP\Client\Model\GoalCreateRequestCustomEvent', $custom_event );
+	}
 }

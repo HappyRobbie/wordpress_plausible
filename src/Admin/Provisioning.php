@@ -167,7 +167,7 @@ class Provisioning {
 	 *
 	 * @return GoalCreateRequestCustomEvent|GoalCreateRequestPageview|GoalCreateRequestRevenue
 	 */
-	private function create_goal_request( $name, $type = 'CustomEvent', $currency = '', $path = '' ) {
+	public function create_goal_request( $name, $type = 'CustomEvent', $currency = '', $path = '' ) {
 		$props = [
 			'goal'      => [
 				'event_name' => $name,
