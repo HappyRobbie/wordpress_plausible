@@ -161,7 +161,7 @@ class WooCommerce {
 	 *
 	 * @return void
 	 *
-	 * @codeCoverageIgnore Because this function returns nothing.
+	 * @codeCoverageIgnore Because we can't test XHR requests here.
 	 */
 	public function track_ajax_add_to_cart( $product_id ) {
 		$product          = wc_get_product( $product_id );
@@ -181,7 +181,7 @@ class WooCommerce {
 	 *
 	 * @return void
 	 *
-	 * @codeCoverageIgnore Because this function returns nothing.
+	 * @codeCoverageIgnore Because we can't test XHR requests here.
 	 */
 	public function track_add_to_cart( $product, $add_to_cart_data ) {
 		$product_data  = $this->clean_data( $product->get_data() );
