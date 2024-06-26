@@ -94,7 +94,7 @@ class Actions {
 					],
 				]
 			);
-			$script     = "plausible('Search', $data );";
+			$script     = "plausible('WP Search Queries', $data );";
 
 			wp_add_inline_script( 'plausible-analytics', "document.addEventListener('DOMContentLoaded', function() {\n$script\n});" );
 		}

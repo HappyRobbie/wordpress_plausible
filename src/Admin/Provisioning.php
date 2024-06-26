@@ -70,7 +70,7 @@ class Provisioning {
 			'404'            => __( '404', 'plausible-analytics' ),
 			'outbound-links' => __( 'Outbound Link: Click', 'plausible-analytics' ),
 			'file-downloads' => __( 'File Download', 'plausible-analytics' ),
-			'search'         => __( 'Search', 'plausible-analytics' ),
+			'search'         => __( 'WP Search Queries', 'plausible-analytics' ),
 		];
 
 		$this->init();
@@ -243,6 +243,10 @@ class Provisioning {
 		$woocommerce = new WooCommerce( false );
 
 		foreach ( $woocommerce->event_goals as $event_key => $event_goal ) {
+			if ( $event_key === 'remove-from-cart' ) {
+				continue;
+			}
+
 			if ( $event_key === 'purchase' ) {
 				$goals[] = $this->create_goal_request( $event_goal, 'Revenue', get_woocommerce_currency() );
 
