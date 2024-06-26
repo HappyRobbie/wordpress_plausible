@@ -94,8 +94,7 @@ class Actions {
 					],
 				]
 			);
-			$script     = 'plausible("pageview", {u:"' . esc_attr( $search_url ) . '"});';
-			$script     .= "\nplausible('Search', $data );";
+			$script     = "\nplausible('Search', $data );";
 
 			wp_add_inline_script( 'plausible-analytics', "document.addEventListener('DOMContentLoaded', function() {\n$script\n});" );
 		}
