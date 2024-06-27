@@ -57,6 +57,7 @@ class Actions {
 
 		$version =
 			Helpers::proxy_enabled() && file_exists( Helpers::get_js_path() ) ? filemtime( Helpers::get_js_path() ) : PLAUSIBLE_ANALYTICS_VERSION;
+
 		wp_enqueue_script( 'plausible-analytics', Helpers::get_js_url( true ), '', $version, apply_filters( 'plausible_load_js_in_footer', false ) );
 
 		// Goal tracking inline script (Don't disable this as it is required by 404).
@@ -85,8 +86,7 @@ class Actions {
 		if ( Helpers::is_enhanced_measurement_enabled( 'search' ) && is_search() ) {
 			global $wp_rewrite, $wp_query;
 
-			$search_url = str_replace( '%search%', '', get_site_url( null, $wp_rewrite->get_search_permastruct() ) );
-			$data       = wp_json_encode(
+			$data   = wp_json_encode(
 				[
 					'props' => [
 						'search_query' => get_search_query(),
@@ -94,7 +94,7 @@ class Actions {
 					],
 				]
 			);
-			$script     = "plausible('WP Search Queries', $data );";
+			$script = "plausible('WP Search Queries', $data );";
 
 			wp_add_inline_script( 'plausible-analytics', "document.addEventListener('DOMContentLoaded', function() {\n$script\n});" );
 		}

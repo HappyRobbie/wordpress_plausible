@@ -100,10 +100,10 @@ class WooCommerce {
 		}
 
 		wp_enqueue_script(
-			'plausible-woocommerce-compatibility',
-			PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/js/plausible-compatibility-woocommerce.js',
+			'plausible-woocommerce-integration',
+			PLAUSIBLE_ANALYTICS_PLUGIN_URL . 'assets/dist/js/plausible-woocommerce-integration.js',
 			[],
-			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-compatibility-woocommerce.js' )
+			filemtime( PLAUSIBLE_ANALYTICS_PLUGIN_DIR . 'assets/dist/js/plausible-woocommerce-integration.js' )
 		);
 	}
 

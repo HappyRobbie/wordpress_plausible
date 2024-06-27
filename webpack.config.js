@@ -9,80 +9,80 @@ const inProduction = ('production' === process.env.NODE_ENV);
 const mode = inProduction ? 'production' : 'development';
 
 const config = {
-    devtool: inProduction ? 'inline-source-map' : 'eval-cheap-module-source-map',
-    mode,
-    entry: {
-        'plausible-admin': ['./assets/src/css/admin/main.css', './assets/src/js/admin/main.js'],
-        'plausible-compatibility-woocommerce': ['./assets/src/js/compatibility/woocommerce.js']
-    },
-    output: {
-        path: path.join(__dirname, './assets/dist/'),
-        filename: 'js/[name].js',
-    },
-    module: {
-        rules: [
-            // Tailwind CSS.
-            {
-                test: /\.css$/,
-                use: [
-                    MiniCSSExtractPlugin.loader,
-                    'css-loader',
-                    'postcss-loader',
-                ],
-            },
+	devtool: inProduction ? 'inline-source-map' : 'eval-cheap-module-source-map',
+	mode,
+	entry: {
+		'plausible-admin': ['./assets/src/css/admin/main.css', './assets/src/js/admin/main.js'],
+		'plausible-woocommerce-integration': ['./assets/src/js/integrations/woocommerce.js']
+	},
+	output: {
+		path: path.join(__dirname, './assets/dist/'),
+		filename: 'js/[name].js',
+	},
+	module: {
+		rules: [
+			// Tailwind CSS.
+			{
+				test: /\.css$/,
+				use: [
+					MiniCSSExtractPlugin.loader,
+					'css-loader',
+					'postcss-loader',
+				],
+			},
 
-            // Image files.
-            {
-                test: /\.(png|jpe?g|gif|svg)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            name: 'images/[name].[ext]',
-                            publicPath: '../',
-                        },
-                    },
-                ],
-            },
-        ],
-    },
+			// Image files.
+			{
+				test: /\.(png|jpe?g|gif|svg)$/,
+				use: [
+					{
+						loader: 'file-loader',
+						options: {
+							name: 'images/[name].[ext]',
+							publicPath: '../',
+						},
+					},
+				],
+			},
+		],
+	},
 
-    // Plugins. Gotta have 'em.
-    plugins: [
+	// Plugins. Gotta have 'em.
+	plugins: [
 
-        // Removes the "dist" folder before building.
-        new CleanWebpackPlugin(),
+		// Removes the "dist" folder before building.
+		new CleanWebpackPlugin(),
 
-        new MiniCSSExtractPlugin({
-            filename: 'css/[name].css',
-        }),
+		new MiniCSSExtractPlugin({
+			filename: 'css/[name].css',
+		}),
 
-        new CopyWebpackPlugin(
-            {
-                patterns: [
-                    {from: 'assets/src/images', to: 'images'},
-                ],
-            }
-        ),
+		new CopyWebpackPlugin(
+			{
+				patterns: [
+					{from: 'assets/src/images', to: 'images'},
+				],
+			}
+		),
 
-    ],
+	],
 };
 
 if (inProduction) {
-    // Minify images.
-    // Must go after CopyWebpackPlugin above: https://github.com/Klathmon/imagemin-webpack-plugin#example-usage
-    config.plugins.push(new ImageminPlugin({test: /\.(jpe?g|png|gif|svg)$/i}));
+	// Minify images.
+	// Must go after CopyWebpackPlugin above: https://github.com/Klathmon/imagemin-webpack-plugin#example-usage
+	config.plugins.push(new ImageminPlugin({test: /\.(jpe?g|png|gif|svg)$/i}));
 
-    // POT file.
-    wpPot({
-        package: 'Plausible Analytics',
-        domain: 'plausible-analytics',
-        destFile: 'languages/plausible-analytics.pot',
-        relativeTo: './',
-        src: ['./**/*.php', '!./includes/libraries/**/*', '!./vendor/**/*'],
-        bugReport: 'https://github.com/plausible/wordpress/issues/new',
-        team: 'Plausible Analytics Team <hello@plausible.io>',
-    });
+	// POT file.
+	wpPot({
+		package: 'Plausible Analytics',
+		domain: 'plausible-analytics',
+		destFile: 'languages/plausible-analytics.pot',
+		relativeTo: './',
+		src: ['./**/*.php', '!./includes/libraries/**/*', '!./vendor/**/*'],
+		bugReport: 'https://github.com/plausible/wordpress/issues/new',
+		team: 'Plausible Analytics Team <hello@plausible.io>',
+	});
 }
 
 module.exports = config;
