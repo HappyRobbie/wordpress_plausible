@@ -54,7 +54,7 @@ class Filters {
 
 		// We need the correct id attribute for IE compatibility.
 		$tag    = preg_replace( "/\sid=(['\"])plausible-analytics-js(['\"])/", " id=$1plausible$2", $tag );
-		$params = "defer data-domain='{$domain_name}' data-api='{$api_url}'";
+		$params = "defer data-domain='{$domain_name}' data-api='{$api_url}' data-cfasync='false'";
 
 		// Triggered when exclude pages is enabled.
 		if ( ! empty( $settings[ 'excluded_pages' ] ) && $settings[ 'excluded_pages' ] ) {
