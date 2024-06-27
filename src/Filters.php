@@ -53,7 +53,10 @@ class Filters {
 		$domain_name = Helpers::get_domain();
 
 		// We need the correct id attribute for IE compatibility.
-		$tag    = preg_replace( "/\sid=(['\"])plausible-analytics-js(['\"])/", " id=$1plausible$2", $tag );
+		$tag = preg_replace( "/\sid=(['\"])plausible-analytics-js(['\"])/", " id=$1plausible$2", $tag );
+		/**
+		 * the data-cfasync ensures this script isn't processed by CF Rocket Loader @see https://developers.cloudflare.com/speed/optimization/content/rocket-loader/ignore-javascripts/
+		 */
 		$params = "defer data-domain='{$domain_name}' data-api='{$api_url}' data-cfasync='false'";
 
 		// Triggered when exclude pages is enabled.
