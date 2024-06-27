@@ -122,30 +122,6 @@ class API {
 				);
 			}
 
-			if ( ! empty( $settings ) ) {
-				$this->slides_description[ 'welcome' ] = sprintf(
-					'<h4>%s</h4><p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p>',
-					__( 'Thanks for using the Plausible Analytics WordPress plugin!', 'plausible-analytics' ),
-					__(
-						'We’ve put a lot of effort into this new release. The experience will now be much more familiar to the experience you’re used to on our website.',
-						'plausible-analytics'
-					),
-					__(
-						'Plus, our brand new API eliminates many tasks that previously had to be done manually!',
-						'plausible-analytics'
-					),
-					__(
-						'For instance, after inserting the Plugin Token, enable the new Authors and categories tracking and it will be displayed in your stats immediately without you needing to add those properties manually in your site settings.',
-						'plausible-analytics'
-					),
-					__(
-						'This welcome screen will guide you through the process of creating the Plugin Token and introduce you to other new features we\'ve added, e.g. Revenue tracking. Click on the “Next” button below to start.',
-						'plausible-analytics'
-					),
-					__( 'We hope you’ll find this useful. Thanks again for using Plausible!', 'plausible-analytics' )
-				);
-			}
-
 			$this->show_wizard();
 
 			return;
