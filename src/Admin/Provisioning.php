@@ -37,6 +37,9 @@ class Provisioning {
 		'category',
 	];
 
+	/**
+	 * @var string[] $custom_search_properties
+	 */
 	private $custom_search_properties = [
 		'search_query',
 		'result_count',
@@ -91,8 +94,9 @@ class Provisioning {
 
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'create_shared_link' ], 10, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_goals' ], 10, 2 );
-		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_woocommerce_funnels' ], 10, 2 );
+		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_woocommerce_funnel' ], 10, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_goals' ], 11, 2 );
+		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_woocommerce_goals' ], 11, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_custom_properties' ], 11, 2 );
 	}
 
@@ -148,13 +152,6 @@ class Provisioning {
 			}
 
 			$goals[] = $this->create_goal_request( $this->custom_event_goals[ $measurement ] );
-
-			if ( $measurement === 'search' ) {
-				global $wp_rewrite;
-
-				$search_url = str_replace( '%search%', '', $wp_rewrite->get_search_permastruct() );
-				$goals[]    = $this->create_goal_request( null, 'Pageview', '', $search_url );
-			}
 		}
 
 		$this->create_goals( $goals );
@@ -234,7 +231,7 @@ class Provisioning {
 	 *
 	 * @codeCoverageIgnore Because we don't want to test the API.
 	 */
-	public function maybe_create_woocommerce_funnels( $old_settings, $settings ) {
+	public function maybe_create_woocommerce_funnel( $old_settings, $settings ) {
 		if ( ! Helpers::is_enhanced_measurement_enabled( 'revenue', $settings[ 'enhanced_measurements' ] ) || ! Integrations::is_wc_active() ) {
 			return; // @codeCoverageIgnore
 		}
@@ -249,6 +246,12 @@ class Provisioning {
 
 			if ( $event_key === 'purchase' ) {
 				$goals[] = $this->create_goal_request( $event_goal, 'Revenue', get_woocommerce_currency() );
+
+				continue;
+			}
+
+			if ( $event_key === 'view-product' ) {
+				$goals[] = $this->create_goal_request( $event_goal, 'Pageview', null, '/product*' );
 
 				continue;
 			}
@@ -279,7 +282,26 @@ class Provisioning {
 			]
 		);
 
-		$this->client->create_funnel( $create_request );
+		$funnel = $this->client->create_funnel( $create_request );
+
+		if ( ! $funnel instanceof Client\Model\Funnel || ! $funnel->valid() ) {
+			return;
+		}
+
+		$ids   = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
+		$steps = $funnel->getFunnel()->getSteps();
+
+		foreach ( $steps as $step ) {
+			$goal = $step->getGoal();
+
+			if ( ! empty( $goal ) ) {
+				$ids[ $goal->getId() ] = $goal->getDisplayName();
+			}
+		}
+
+		if ( ! empty( $ids ) ) {
+			update_option( 'plausible_analytics_enhanced_measurements_goal_ids', $ids );
+		}
 	}
 
 	/**
@@ -309,7 +331,69 @@ class Provisioning {
 			}
 
 			$this->client->delete_goal( $id );
+
+			unset( $goals[ $id ] );
 		}
+
+		// Refresh the stored IDs in the DB.
+		update_option( 'plausible_analytics_enhanced_measurements_goal_ids', $goals );
+	}
+
+	/**
+	 * Delete all custom WooCommerce event goals if Revenue setting is disabled. The funnel is deleted when the minimum required no. of goals is no
+	 * longer met.
+	 *
+	 * @param $old_settings
+	 * @param $settings
+	 *
+	 * @return void
+	 */
+	public function maybe_delete_woocommerce_goals( $old_settings, $settings ) {
+		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
+
+		// Setting is enabled, no need to continue.
+		if ( Helpers::is_enhanced_measurement_enabled( 'revenue', $enhanced_measurements ) ) {
+			return;
+		}
+
+		$goals           = get_option( 'plausible_analytics_enhanced_measurements_goal_ids', [] );
+		$woo_integration = new WooCommerce( false );
+
+		foreach ( $goals as $id => $name ) {
+			$key = $this->array_search_contains( $name, $woo_integration->event_goals );
+
+			if ( $key ) {
+				$this->client->delete_goal( $id );
+
+				unset( $goals[ $id ] );
+			}
+		}
+
+		// Refresh the stored IDs in the DB.
+		update_option( 'plausible_analytics_enhanced_measurements_goal_ids', $goals );
+	}
+
+	/**
+	 * Searches an array for the presence of $string within each element's value. Strips currencies using a regex, e.g. (USD), because these are
+	 * added to revenue goals by Plausible.
+	 *
+	 * @param string $string
+	 * @param array  $haystack
+	 *
+	 * @return false|mixed
+	 */
+	private function array_search_contains( $string, $haystack ) {
+		if ( preg_match( '/\([A-Z]*?\)/', $string ) ) {
+			$string = preg_replace( '/ \([A-Z]*?\)/', '', $string );
+		}
+
+		foreach ( $haystack as $key => $value ) {
+			if ( strpos( $value, $string ) !== false ) {
+				return $key;
+			}
+		}
+
+		return false;
 	}
 
 	/**

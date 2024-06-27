@@ -47,6 +47,7 @@ class WooCommerce {
 	 */
 	public function __construct( $init = true ) {
 		$this->event_goals = [
+			'view-product'     => __( 'Visit /product*', 'plausible-analytics' ),
 			'add-to-cart'      => __( 'Woo Add to Cart', 'plausible-analytics' ),
 			'remove-from-cart' => __( 'Woo Remove from Cart', 'plausible-analytics' ),
 			'checkout'         => __( 'Woo Start Checkout', 'plausible-analytics' ),
