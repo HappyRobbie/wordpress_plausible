@@ -138,20 +138,24 @@ class WooCommerce {
 	 */
 	public function track_add_to_cart_on_product_page() {
 		$product = wc_get_product();
+
+		if ( ! $product ) {
+			return;
+		}
 		?>
 		<script>
-			let form = document.querySelector('form.cart');
+			let addToCartButton = document.querySelector('button.single_add_to_cart_button');
 			let quantity = document.querySelector('input[name="quantity"]');
 
-			form.classList.add('plausible-event-name=<?php echo str_replace( ' ', '+', $this->event_goals[ 'add-to-cart' ] ); ?>');
-			form.classList.add('plausible-event-quantity=' + quantity.value);
-			form.classList.add('plausible-event-product_id=<?php echo $product->get_id(); ?>');
-			form.classList.add('plausible-event-product_name=<?php echo str_replace( ' ', '+', $product->get_name( null ) ); ?>');
-			form.classList.add('plausible-event-price=<?php echo $product->get_price( null ); ?>');
+			addToCartButton.classList.add('plausible-event-name=<?php echo str_replace( ' ', '+', $this->event_goals[ 'add-to-cart' ] ); ?>');
+			addToCartButton.classList.add('plausible-event-quantity=' + quantity.value);
+			addToCartButton.classList.add('plausible-event-product_id=<?php echo $product->get_id(); ?>');
+			addToCartButton.classList.add('plausible-event-product_name=<?php echo str_replace( ' ', '+', $product->get_name( null ) ); ?>');
+			addToCartButton.classList.add('plausible-event-price=<?php echo $product->get_price( null ); ?>');
 
 			quantity.addEventListener('change', function (e) {
 				let target = e.target;
-				form.className = form.className.replace(/(plausible-event-quantity=).+?/, "\$1" + target.value);
+				addToCartButton.className = addToCartButton.className.replace(/(plausible-event-quantity=).+?/, "\$1" + target.value);
 			});
 		</script>
 		<?php
