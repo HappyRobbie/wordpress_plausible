@@ -313,9 +313,10 @@ class Ajax {
 	 * @throws ApiException
 	 */
 	private function validate_api_token( $token = '' ) {
-		$client = new Client( $token );
+		$client_factory = new ClientFactory( $token );
+		$client         = $client_factory->build();
 
-		if ( ! $client->validate_api_token() ) {
+		if ( $client instanceof Client && ! $client->validate_api_token() ) {
 			$hosted_domain = Helpers::get_hosted_domain_url();
 			$domain        = Helpers::get_domain();
 
