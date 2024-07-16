@@ -29,9 +29,9 @@ class ClientFactory {
 		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
 		 */
 		if ( ! extension_loaded( 'curl' ) && ! ini_get( 'allow_url_fopen' ) ) {
-			add_action( 'init', [ $this, 'add_curl_error' ] );
+			add_action( 'init', [ $this, 'add_curl_error' ] ); // @codeCoverageIgnore
 
-			return false;
+			return false; // @codeCoverageIgnore
 		}
 
 		return new Client( $this->token );
