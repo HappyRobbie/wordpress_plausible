@@ -125,7 +125,7 @@ class Page extends API {
 							'type'     => 'button',
 							'disabled' => empty( $settings[ 'domain_name' ] ) ||
 								empty( $settings[ 'api_token' ] ) ||
-								$this->client instanceof Client ||
+								! $this->client instanceof Client ||
 								$this->client->is_api_token_valid(),
 						],
 					],
