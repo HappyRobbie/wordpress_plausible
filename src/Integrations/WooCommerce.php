@@ -264,7 +264,7 @@ class WooCommerce {
 	 */
 	public function track_entered_checkout() {
 		if ( ! is_checkout() ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$cart = WC()->cart;
@@ -298,7 +298,7 @@ class WooCommerce {
 		$is_tracked = $order->get_meta( self::PURCHASE_TRACKED_META_KEY );
 
 		if ( $is_tracked ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$props = wp_json_encode(
