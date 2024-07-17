@@ -76,7 +76,7 @@ class Helpers {
 		}
 
 		// Add the manual scripts as we need it to track the search parameter.
-		if ( self::is_enhanced_measurement_enabled( 'search' ) ) {
+		if ( is_search() && self::is_enhanced_measurement_enabled( 'search' ) ) {
 			$file_name .= '.manual'; // @codeCoverageIgnore
 		}
 

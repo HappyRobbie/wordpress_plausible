@@ -84,7 +84,7 @@ class Actions {
 
 		// Track search results. Tracks a search event with the search term and the number of results, and a pageview with the site's search URL.
 		if ( Helpers::is_enhanced_measurement_enabled( 'search' ) && is_search() ) {
-			global $wp_rewrite, $wp_query;
+			global $wp_query;
 
 			$data   = wp_json_encode(
 				[
