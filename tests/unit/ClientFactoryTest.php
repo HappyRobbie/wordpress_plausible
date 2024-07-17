@@ -15,7 +15,8 @@ class ClientFactoryTest extends TestCase {
 	 */
 	public function testBuild() {
 		$clientFactory = new ClientFactory();
+		$client        = $clientFactory->build();
 
-		$this->assertInstanceOf( Client::class, $clientFactory );
+		$this->assertInstanceOf( Client::class, $client );
 	}
 }
