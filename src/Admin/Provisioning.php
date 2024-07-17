@@ -329,6 +329,8 @@ class Provisioning {
 	 * @param $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_delete_woocommerce_goals( $old_settings, $settings ) {
 		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
@@ -363,6 +365,8 @@ class Provisioning {
 	 * @param array  $haystack
 	 *
 	 * @return false|mixed
+	 *
+	 * @codeCoverageIgnore Because it can't be unit tested.
 	 */
 	private function array_search_contains( $string, $haystack ) {
 		if ( preg_match( '/\([A-Z]*?\)/', $string ) ) {
