@@ -177,7 +177,7 @@ class Provisioning {
 	/**
 	 * Create the goals using the API client and updates the IDs in the database.
 	 *
-	 * @param $goals
+	 * @param array $goals
 	 *
 	 * @return void
 	 */
@@ -222,7 +222,10 @@ class Provisioning {
 		$woocommerce = new WooCommerce( false );
 
 		foreach ( $woocommerce->event_goals as $event_key => $event_goal ) {
+			// Don't add this goal to the funnel. Create it separately instead.
 			if ( $event_key === 'remove-from-cart' ) {
+				$this->create_goals( [ $this->create_goal_request( $event_goal ) ] );
+
 				continue;
 			}
 

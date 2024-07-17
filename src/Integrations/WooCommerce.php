@@ -243,13 +243,14 @@ class WooCommerce {
 	public function track_remove_cart_item( $cart_item_key, $cart ) {
 		$cart_contents          = $cart->get_cart_contents();
 		$item_removed_from_cart = $this->clean_data( $cart_contents[ $cart_item_key ] ?? [] );
+		$product                = wc_get_product( $item_removed_from_cart[ 'product_id' ] );
 		$props                  = apply_filters(
 			'plausible_analytics_woocommerce_remove_cart_item_custom_properties',
 			[
+				'product_name'     => $product->get_name(),
 				'product_id'       => $item_removed_from_cart[ 'product_id' ],
 				'variation_id'     => $item_removed_from_cart[ 'variation_id' ],
 				'quantity'         => $item_removed_from_cart[ 'quantity' ],
-				'removed_item'     => $item_removed_from_cart,
 				'cart_total_items' => count( $cart_contents ),
 				'cart_total'       => $cart->get_total( null ),
 			]
