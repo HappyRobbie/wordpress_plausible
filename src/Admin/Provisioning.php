@@ -14,11 +14,17 @@ use Plausible\Analytics\WP\Client\ApiException;
 use Plausible\Analytics\WP\Client\Model\GoalCreateRequestCustomEvent;
 use Plausible\Analytics\WP\Client\Model\GoalCreateRequestPageview;
 use Plausible\Analytics\WP\Client\Model\GoalCreateRequestRevenue;
+use Plausible\Analytics\WP\ClientFactory;
 use Plausible\Analytics\WP\Helpers;
 use Plausible\Analytics\WP\Integrations;
 use Plausible\Analytics\WP\Integrations\WooCommerce;
 
 class Provisioning {
+	/**
+	 * @var ClientFactory
+	 */
+	private $client_factory;
+
 	/**
 	 * @var Client $client
 	 */
@@ -54,19 +60,11 @@ class Provisioning {
 	 * @codeCoverageIgnore
 	 */
 	public function __construct( $client = null ) {
-		/**
-		 * cURL or allow_url_fopen ini setting is required for GuzzleHttp to function properly.
-		 */
-		if ( ! extension_loaded( 'curl' ) && ! ini_get( 'allow_url_fopen' ) ) {
-			add_action( 'init', [ $this, 'add_curl_error' ] );
-
-			return;
-		}
-
 		$this->client = $client;
 
 		if ( ! $this->client ) {
-			$this->client = new Client();
+			$this->client_factory = new ClientFactory();
+			$this->client         = $this->client_factory->build();
 		}
 
 		$this->custom_event_goals = [
@@ -88,7 +86,7 @@ class Provisioning {
 	 * @codeCoverageIgnore
 	 */
 	private function init() {
-		if ( ! $this->client->validate_api_token() ) {
+		if ( ! $this->client instanceof Client || ! $this->client->validate_api_token() ) {
 			return; // @codeCoverageIgnore
 		}
 
@@ -98,22 +96,6 @@ class Provisioning {
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_goals' ], 11, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_delete_woocommerce_goals' ], 11, 2 );
 		add_action( 'update_option_plausible_analytics_settings', [ $this, 'maybe_create_custom_properties' ], 11, 2 );
-	}
-
-	/**
-	 * Show an error on the settings screen if cURL isn't enabled on this machine.
-	 *
-	 * @return void
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function add_curl_error() {
-		Messages::set_error(
-			__(
-				'cURL is not enabled on this server, which means API provisioning will not work. Please contact your hosting provider to enable the cURL module or <code>allow_url_fopen</code>.',
-				'plausible-analytics'
-			)
-		);
 	}
 
 	/**
@@ -347,6 +329,8 @@ class Provisioning {
 	 * @param $settings
 	 *
 	 * @return void
+	 *
+	 * @codeCoverageIgnore Because we don't want to test if the API is working.
 	 */
 	public function maybe_delete_woocommerce_goals( $old_settings, $settings ) {
 		$enhanced_measurements = array_filter( $settings[ 'enhanced_measurements' ] );
@@ -381,6 +365,8 @@ class Provisioning {
 	 * @param array  $haystack
 	 *
 	 * @return false|mixed
+	 *
+	 * @codeCoverageIgnore Because it can't be unit tested.
 	 */
 	private function array_search_contains( $string, $haystack ) {
 		if ( preg_match( '/\([A-Z]*?\)/', $string ) ) {
