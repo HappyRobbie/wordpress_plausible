@@ -89,6 +89,11 @@ class HelpersTest extends TestCase {
 
 		add_filter( 'plausible_analytics_settings', [ $this, 'enableSearch' ] );
 
+		global $wp_query;
+
+		$wp_query = new \WP_Query();
+		$wp_query->query( 's=test' );
+
 		$filename = Helpers::get_filename();
 
 		$this->assertEquals( 'plausible.pageview-props.manual', $filename );
