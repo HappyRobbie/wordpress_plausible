@@ -5,7 +5,7 @@ Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 2.0.9
+Stable tag: 2.1.0
 License: Massachusetts Institute of Technology (MIT) license
 License URI: https://opensource.org/licenses/MIT
 
@@ -85,12 +85,6 @@ For more information: [How to setup Plausible Analytics WordPress plugin](https:
 
 == Installation ==
 
-= Minimum Requirements =
-
-* WordPress 4.8 or greater
-* PHP version 5.6 or greater
-* MySQL version 5.5 or greater
-
 = Automatic installation =
 
 Automatic installation is the easiest option as WordPress handles the file transfers itself and you don't need to leave your web browser. To do an automatic install of Plausible Analytics, log in to your WordPress dashboard, navigate to the Plugins menu and click "Add New".
@@ -160,6 +154,14 @@ Contact us: https://plausible.io/contact
 Please make sure you make a backup of your database before updating any version to ensure that none of your data is lost.
 
 == Changelog ==
+
+= 2.1.0 | July 21st, 2024 =
+
+* Tested with WP 6.6
+* Added: WooCommerce integration. This is automatically enabled when the enhanced measurement Ecommerce Revenue is enabled. For current users who wish to switch to the WooCommerce integration, please disable and enable the option to make sure the required goals and funnel are created.
+* Added: Enhanced measuring for Search Queries.
+* Added: Cloudflare Rocket Loader compatibility.
+* Fixed: the plugin would crash the admin screen on instances not running cURL or with allow_url_fopen disabled.
 
 = v2.0.9 | May 22nd, 2024 =
 
