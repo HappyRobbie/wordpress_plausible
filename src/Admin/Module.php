@@ -211,7 +211,7 @@ class Module {
 				sprintf(
 					wp_kses(
 						__(
-							'Plausible\'s proxy couldn\'t be enabled, because the WordPress API is inaccessable. This might be due to a conflicting setting in a (security) plugin or server firewall. Make sure you whitelist requests to the Proxy\'s endpoint: <code>%1$s</code>. <a href="%2$s" target="_blank">Contact support</a> if you need help locating the issue.',
+							'Plausible\'s proxy couldn\'t be enabled, because the WordPress API is inaccessible. This might be due to a conflicting setting in a (security) plugin or server firewall. Make sure you whitelist requests to the Proxy\'s endpoint: <code>%1$s</code>. <a href="%2$s" target="_blank">Contact support</a> if you need help locating the issue.',
 							'plausible-analytics'
 						),
 						'post'
@@ -241,7 +241,7 @@ class Module {
 	}
 
 	/**
-	 * Runs a quick internal call to the WordPress API to make sure it's accessable.
+	 * Runs a quick internal call to the WordPress API to make sure it's accessible.
 	 *
 	 * @since 1.3.0
 	 * @return bool
