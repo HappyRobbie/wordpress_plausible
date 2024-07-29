@@ -24,7 +24,7 @@ class PlausibleProxySpeed {
 	private $is_proxy_request = false;
 
 	/**
-	 * Currenct request URI.
+	 * Current request URI.
 	 *
 	 * @var string
 	 */
