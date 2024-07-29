@@ -14,6 +14,10 @@ window.fetch = (...args) => {
 
 	let data = JSON.parse(config.body);
 
+	if (data.requests === undefined || data.requests === null) {
+		return originalFetch(resource, config);
+	}
+
 	data.requests.forEach(function (request) {
 		if (!request.path.includes('cart/add-item')) {
 			return;
