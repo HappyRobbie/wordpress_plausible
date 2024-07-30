@@ -14,7 +14,7 @@ window.fetch = (...args) => {
 
 	let data = JSON.parse(config.body);
 
-	if (data.requests === undefined || data.requests === null) {
+	if (data === null || data.requests === undefined || !data.requests instanceof Array) {
 		return originalFetch(resource, config);
 	}
 
