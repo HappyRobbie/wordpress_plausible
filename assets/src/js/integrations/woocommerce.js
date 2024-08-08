@@ -8,7 +8,7 @@ const {fetch: originalFetch} = window;
 window.fetch = (...args) => {
 	let [resource, config] = args;
 
-	if (config.body === undefined) {
+	if (config === undefined || config.body === undefined) {
 		return originalFetch(resource, config);
 	}
 
