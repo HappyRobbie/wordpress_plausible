@@ -5,7 +5,7 @@ Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: Massachusetts Institute of Technology (MIT) license
 License URI: https://opensource.org/licenses/MIT
 
@@ -155,9 +155,12 @@ Please make sure you make a backup of your database before updating any version 
 
 == Changelog ==
 
+= 2.1.2 | August 9th, 2024 =
+* Fixed: WooCommerce integration would cause JS conflicts with Raptive ads.
+
 = 2.1.1 | July 21st, 2024 =
 * Fixed some typo's.
-* Fixed: WooCommerce integration would cause JS conflicts in some configurations.
+* Fixed: WooCommerce integration would cause JS conflicts with CookieYes.
 
 = 2.1.0 | July 21st, 2024 =
 
