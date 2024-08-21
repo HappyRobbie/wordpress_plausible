@@ -10,12 +10,7 @@
  * Text Domain: plausible-analytics
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 class PlausibleProxySpeed {
-
 	/**
 	 * Is current request a request to our proxy?
 	 *
@@ -43,21 +38,12 @@ class PlausibleProxySpeed {
 	}
 
 	/**
-	 * Add filters and actions.
-	 *
-	 * @return void
-	 */
-	private function init() {
-		add_filter( 'option_active_plugins', [ $this, 'filter_active_plugins' ] );
-	}
-
-	/**
 	 * Helper method to retrieve Request URI. Checks several globals.
 	 *
 	 * @return mixed
 	 */
 	private function get_request_uri() {
-		return $_SERVER['REQUEST_URI'];
+		return $_SERVER[ 'REQUEST_URI' ];
 	}
 
 	/**
@@ -66,13 +52,22 @@ class PlausibleProxySpeed {
 	 * @return bool
 	 */
 	private function is_proxy_request() {
-		$namespace = get_option( 'plausible_analytics_proxy_resources' )['namespace'] ?? '';
+		$namespace = get_option( 'plausible_analytics_proxy_resources' )[ 'namespace' ] ?? '';
 
 		if ( ! $namespace ) {
 			return false;
 		}
 
 		return strpos( $this->request_uri, $namespace ) !== false;
+	}
+
+	/**
+	 * Add filters and actions.
+	 *
+	 * @return void
+	 */
+	private function init() {
+		add_filter( 'option_active_plugins', [ $this, 'filter_active_plugins' ] );
 	}
 
 	/**
