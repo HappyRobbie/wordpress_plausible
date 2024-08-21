@@ -329,13 +329,13 @@ class WooCommerce {
 		$order      = wc_get_order( $order_id );
 		$is_tracked = $order->get_meta( self::PURCHASE_TRACKED_META_KEY );
 
-		if ( $is_tracked ) {
-			return; // @codeCoverageIgnore
-		}
+		//		if ( $is_tracked ) {
+		//			return; // @codeCoverageIgnore
+		//		}
 
 		$props = wp_json_encode(
 			[
-				'revenue' => [ 'amount' => number_format_i18n( $order->get_total(), 2 ), 'currency' => $order->get_currency() ],
+				'revenue' => [ 'amount' => (string) $order->get_total(), 'currency' => $order->get_currency() ],
 			]
 		);
 		$label = $this->event_goals[ 'purchase' ];
