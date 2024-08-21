@@ -12,7 +12,13 @@ window.fetch = (...args) => {
 		return originalFetch(resource, config);
 	}
 
-	let data = JSON.parse(config.body);
+	let data;
+
+	try {
+		data = JSON.parse(config.body);
+	} catch (e) {
+		return originalFetch(resource, config);
+	}
 
 	if (data === null || data.requests === undefined || !data.requests instanceof Array) {
 		return originalFetch(resource, config);
