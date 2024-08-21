@@ -30,7 +30,7 @@ class Setup {
 		// Attach the cron script to the cron action.
 		add_action( $this->cron, [ $this, 'load_cron_script' ] );
 
-		// This assures that the local file is updated when settings are saved.
+		// This assures that the local file is downloaded/updated when settings are saved.
 		add_action( 'plausible_analytics_settings_saved', [ $this, 'load_cron_script' ] );
 	}
 
@@ -73,6 +73,6 @@ class Setup {
 	 * @codeCoverageIgnore
 	 */
 	public function load_cron_script() {
-		new \Plausible\Analytics\WP\Cron();
+		new Cron();
 	}
 }
