@@ -274,7 +274,7 @@ class WooCommerce {
 		if ( ! $product ) {
 			return;
 		}
-		
+
 		$props = apply_filters(
 			'plausible_analytics_woocommerce_remove_cart_item_custom_properties',
 			[
