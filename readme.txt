@@ -5,7 +5,7 @@ Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: Massachusetts Institute of Technology (MIT) license
 License URI: https://opensource.org/licenses/MIT
 
@@ -154,6 +154,11 @@ Contact us: https://plausible.io/contact
 Please make sure you make a backup of your database before updating any version to ensure that none of your data is lost.
 
 == Changelog ==
+
+= 2.1.3 | August 23rd, 2024 =
+* Fixed: WooCommerce integration would cause JS conflicts with certain Gravity Forms add-ons.
+* Fixed: PHP warning - undefined array key "product_id".
+* Fixed: numbers using thousands separators (999+) would receive the incorrect formatting in some locales.
 
 = 2.1.2 | August 9th, 2024 =
 * Fixed: WooCommerce integration would cause JS conflicts with Raptive ads.
