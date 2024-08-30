@@ -432,6 +432,10 @@ class Provisioning {
 			}
 		}
 
+		if ( empty( $properties ) ) {
+			return;
+		}
+
 		$create_request->setCustomProps( $properties );
 
 		$this->client->enable_custom_property( $create_request );
