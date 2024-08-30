@@ -433,7 +433,7 @@ class Provisioning {
 		}
 
 		if ( empty( $properties ) ) {
-			return;
+			return; // @codeCoverageIgnore
 		}
 
 		$create_request->setCustomProps( $properties );
