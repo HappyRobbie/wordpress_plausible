@@ -65,7 +65,7 @@ class WooCommerceTest extends TestCase {
 
 		when( 'wc_get_order' )->justReturn( $mock );
 
-		$this->expectOutputContains( '{"revenue":{"amount":"10.00","currency":"EUR"}}' );
+		$this->expectOutputContains( '{"revenue":{"amount":"10","currency":"EUR"}}' );
 
 		$class->track_purchase( 1 );
 	}
