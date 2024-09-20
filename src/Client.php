@@ -34,7 +34,7 @@ class Client {
 	 */
 	public function __construct( $token = '' ) {
 		$config             = Configuration::getDefaultConfiguration()->setUsername( 'WordPress' )->setPassword(
-			$token ?: Helpers::get_settings()[ 'api_token' ]
+			$token
 		)->setHost( Helpers::get_hosted_domain_url() );
 		$this->api_instance = new DefaultApi( new GuzzleClient(), $config );
 	}
