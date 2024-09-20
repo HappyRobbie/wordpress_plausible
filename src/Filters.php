@@ -112,7 +112,7 @@ class Filters {
 			// Loop through the terms.
 			foreach ( $terms as $term ) {
 				if ( $term instanceof WP_Term ) {
-					$params .= " event-{$taxonomy}='{$term->name}'";
+					$params .= " event-{$taxonomy}=\"{$term->name}\"";
 				}
 			}
 		}
