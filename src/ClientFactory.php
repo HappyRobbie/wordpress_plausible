@@ -34,6 +34,14 @@ class ClientFactory {
 			return false; // @codeCoverageIgnore
 		}
 
+		if ( ! $this->token ) {
+			$this->token = Helpers::get_settings()[ 'api_token' ];
+		}
+
+		if ( ! $this->token ) {
+			return false;
+		}
+
 		return new Client( $this->token );
 	}
 
