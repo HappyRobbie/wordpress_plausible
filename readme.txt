@@ -5,7 +5,7 @@ Tags: analytics, google analytics, web analytics, stats, privacy
 Requires at least: 5.3
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: Massachusetts Institute of Technology (MIT) license
 License URI: https://opensource.org/licenses/MIT
 
@@ -154,6 +154,11 @@ Contact us: https://plausible.io/contact
 Please make sure you make a backup of your database before updating any version to ensure that none of your data is lost.
 
 == Changelog ==
+
+= 2.1.4 | September 25th, 2024 =
+* Improved: when no token was entered, the API client would keep trying to verify the connection. This is now fixed.
+* Fixed: When "Authors and categoreis" was enabled, HTML would break if a taxonomy name contained a apostrophe.
+* Fixed: A typo in the 404 tracking script, caused it to malfunction.
 
 = 2.1.3 | August 23rd, 2024 =
 * Fixed: WooCommerce integration would cause JS conflicts with certain Gravity Forms add-ons.
