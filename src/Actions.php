@@ -94,7 +94,7 @@ class Actions {
 			$data   = wp_json_encode(
 				[
 					'props' => [
-						'search_query' => get_search_query(),
+						'search_query' => trim(get_search_query()),
 						'result_count' => $wp_query->found_posts,
 					],
 				]
