@@ -94,7 +94,8 @@ class Actions {
 			$data   = wp_json_encode(
 				[
 					'props' => [
-						'search_query' => trim(get_search_query()),
+						// convert queries to lowercase and remove trailing whitespace to ensure same terms are grouped together
+						'search_query' => strtolower(trim(get_search_query())),
 						'result_count' => $wp_query->found_posts,
 					],
 				]
